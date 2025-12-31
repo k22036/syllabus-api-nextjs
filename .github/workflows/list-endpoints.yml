@@ -13,6 +13,7 @@ jobs:
         id: preview
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          allow_inactive: true
 
       - name: List Endpoints
         uses: actions/github-script@v8
