@@ -1,0 +1,40 @@
+name: List Endpoints
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  list-endpoints:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Wait for Vercel Preview Deployment
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
+        id: preview
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allow_inactive: true
+        continue-on-error: true
+
+      - name: List Endpoints
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const previewUrl = '${{ steps.preview.outputs.url }}';
+            const endpoints = [
+              '/api/fetch_syllabus',
+            ];
+
+            let commentBody = '## 🚀 Deployed Endpoints\n\n';
+            endpoints.forEach(endpoint => {
+              commentBody += `- [${endpoint}](${previewUrl}${endpoint})\n`;
+            });
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody,
+            });
