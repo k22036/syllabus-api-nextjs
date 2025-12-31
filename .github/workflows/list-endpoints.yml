@@ -7,13 +7,14 @@ on:
 jobs:
   list-endpoints:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Wait for Vercel Preview Deployment
         uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
         id: preview
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          max_timeout: 30
           allow_inactive: true
         continue-on-error: true
 
