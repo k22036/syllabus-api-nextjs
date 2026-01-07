@@ -17,7 +17,7 @@
         "@types/node": "^25",
         "@types/react": "^19",
         "@types/react-dom": "^19",
-        "@types/web": "^0.0.311",
+        "@types/web": "^0.0.313",
         "postcss": "^8",
         "tailwindcss": "^4.1.18",
         "typescript": "^5",
@@ -165,7 +165,7 @@
 
     "@types/react-dom": ["@types/react-dom@19.2.3", "", { "peerDependencies": { "@types/react": "^19.2.0" } }, "sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ=="],
 
-    "@types/web": ["@types/web@0.0.311", "", {}, "sha512-37JkXhm2bnvmM7KUBcqvebh0JNMyx8XZbF37ZElc6qJVKRHXEO4lYC2TdWAHheRQHAMvzZqhSeyppu0kecZDLA=="],
+    "@types/web": ["@types/web@0.0.313", "", {}, "sha512-YZsvjMHvY1DKAPkcxqstgYh2qf2pgYo6Z/mKN/UqddMm2oXABHHkRspk/FdLsoB5INdVfpbGUUi8DHnFFgVGYg=="],
 
     "baseline-browser-mapping": ["baseline-browser-mapping@2.9.11", "", { "bin": { "baseline-browser-mapping": "dist/cli.js" } }, "sha512-Sg0xJUNDU1sJNGdfGWhVHX0kkZ+HWcvmVymJbj6NSgZZmW/8S9Y2HQ5euytnIgakgxN6papOAWiwDo1ctFDcoQ=="],
 
