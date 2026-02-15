@@ -11,7 +11,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Wait for Vercel Preview Deployment
-        uses: patrickedqvist/wait-for-vercel-preview@v1.3.3
+        uses: patrickedqvist/wait-for-vercel-preview@d7982701e6fcd3ae073bff929e408e004404d38d # v1.3.3
         id: preview
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -19,10 +19,19 @@ jobs:
         continue-on-error: true
 
       - name: List Endpoints
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.url }}
         with:
           script: |
-            const previewUrl = '${{ steps.preview.outputs.url }}';
+            const previewUrl = process.env.PREVIEW_URL;
+
+            // URLの検証
+            if (previewUrl && !/^https:\/\/[a-zA-Z0-9.-]+\.vercel\.app/.test(previewUrl)) {
+              core.warning('Invalid Vercel preview URL');
+              return;
+            }
+
             const endpoints = [
               '/api/fetch_syllabus',
             ];
