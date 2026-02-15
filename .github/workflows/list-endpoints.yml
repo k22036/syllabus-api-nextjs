@@ -20,9 +20,18 @@ jobs:
 
       - name: List Endpoints
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.url }}
         with:
           script: |
-            const previewUrl = '${{ steps.preview.outputs.url }}';
+            const previewUrl = process.env.PREVIEW_URL;
+
+            // URLの検証
+            if (previewUrl && !/^https:\/\/[a-zA-Z0-9.-]+\.vercel\.app/.test(previewUrl)) {
+              core.warning('Invalid Vercel preview URL');
+              return;
+            }
+
             const endpoints = [
               '/api/fetch_syllabus',
             ];
