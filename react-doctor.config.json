@@ -1,7 +1,5 @@
 {
   "ignore": {
-    "files": [
-      "tests/**"
-    ]
+    "files": ["tests/**"]
   }
 }
