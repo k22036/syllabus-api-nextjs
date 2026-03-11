@@ -23,7 +23,7 @@
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/web": "^0.0.339",
+    "@types/web": "^0.0.342",
     "postcss": "^8",
     "tailwindcss": "^4.2.1",
     "typescript": "^5"
