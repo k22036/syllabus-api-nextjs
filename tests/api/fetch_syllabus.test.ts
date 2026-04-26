@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { z } from "zod";
+import type { SyllabusData } from "../../app/_types/syllabus";
 import {
   RESPONSE_HEADERS_DOCS,
   SYLLABUS_HEADERS,
@@ -165,55 +166,47 @@ describe("GET /api/fetch_syllabus", () => {
   });
 
   describe("クエリパラメータによるフィルタリング", () => {
-    test("subject パラメータで部分一致フィルタリングができること", async () => {
-      const request = createRequest(undefined, { subject: "プログラミング" });
+    // リクエスト作成と型アサーション、配列の平坦化をまとめたヘルパー関数
+    async function fetchFilteredData(query: Record<string, string>) {
+      const request = createRequest(undefined, query);
       const response = await GET(request);
-      const data = (await response.json()) as Record<
-        string,
-        { subject: string; room: string; season: string; open_time: string }[]
-      >;
+      const data = (await response.json()) as SyllabusData;
+      const allItems = Object.values(data).flat();
+      return { response, data, allItems };
+    }
 
-      for (const items of Object.values(data)) {
-        for (const item of items) {
-          expect(item.subject.toLowerCase()).toContain("プログラミング");
-        }
+    test("subject パラメータで部分一致フィルタリングができること", async () => {
+      const { allItems } = await fetchFilteredData({
+        subject: "プログラミング",
+      });
+
+      // テストの信頼性を高めるため、0件で素通りすることを防ぐ
+      expect(allItems.length).toBeGreaterThan(0);
+      for (const item of allItems) {
+        expect(item.subject.toLowerCase()).toContain("プログラミング");
       }
     });
 
     test("room パラメータで部分一致フィルタリングができること", async () => {
-      const request = createRequest(undefined, { room: "101" });
-      const response = await GET(request);
-      const data = (await response.json()) as Record<
-        string,
-        { subject: string; room: string; season: string; open_time: string }[]
-      >;
+      const { allItems } = await fetchFilteredData({ room: "室" }); // 実際のJSONに存在する教室名の一部にする
 
-      for (const items of Object.values(data)) {
-        for (const item of items) {
-          expect(item.room.toLowerCase()).toContain("101");
-        }
+      expect(allItems.length).toBeGreaterThan(0);
+      for (const item of allItems) {
+        expect(item.room.toLowerCase()).toContain("室");
       }
     });
 
     test("season パラメータで完全一致フィルタリングができること", async () => {
-      const request = createRequest(undefined, { season: "前期" });
-      const response = await GET(request);
-      const data = (await response.json()) as Record<
-        string,
-        { subject: string; room: string; season: string; open_time: string }[]
-      >;
+      const { allItems } = await fetchFilteredData({ season: "前期" });
 
-      for (const items of Object.values(data)) {
-        for (const item of items) {
-          expect(item.season).toBe("前期");
-        }
+      expect(allItems.length).toBeGreaterThan(0);
+      for (const item of allItems) {
+        expect(item.season).toBe("前期");
       }
     });
 
     test("該当データがない場合は空のオブジェクトが返ること", async () => {
-      const request = createRequest(undefined, { subject: "存在しない科目" });
-      const response = await GET(request);
-      const data = await response.json();
+      const { data } = await fetchFilteredData({ subject: "存在しない科目" });
       expect(data).toEqual({});
     });
   });
