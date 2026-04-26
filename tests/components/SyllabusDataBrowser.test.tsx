@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import SyllabusDataBrowser from "../../app/_components/SyllabusDataBrowser";
 
 const mockData = {
@@ -39,6 +40,18 @@ const mockData = {
   ],
 };
 
+const largeMockData: Record<
+  string,
+  { subject: string; room: string; season: string; open_time: string }[]
+> = {
+  LargeRoom: Array.from({ length: 25 }).map((_, i) => ({
+    subject: `TEST${i} : テスト科目${i}`,
+    room: "LargeRoom",
+    season: "前期",
+    open_time: `時限${i}`,
+  })),
+};
+
 describe("SyllabusDataBrowser Component", () => {
   it("renders correctly with given stats", () => {
     render(
@@ -57,7 +70,8 @@ describe("SyllabusDataBrowser Component", () => {
     expect(screen.getByText("美術史")).toBeDefined();
   });
 
-  it("filters correctly by search text", () => {
+  it("filters correctly by search text", async () => {
+    const user = userEvent.setup();
     render(
       <SyllabusDataBrowser data={mockData} totalRooms={2} totalSubjects={5} />,
     );
@@ -65,14 +79,15 @@ describe("SyllabusDataBrowser Component", () => {
     const input = screen.getByPlaceholderText("科目名・教室名で検索...");
 
     // Type "プログラミング"
-    fireEvent.change(input, { target: { value: "プログラミング" } });
+    await user.type(input, "プログラミング");
 
     expect(screen.getByText("プログラミング基礎")).toBeDefined();
     expect(screen.queryByText("基礎数学")).toBeNull();
     expect(screen.queryByText("英語講読")).toBeNull();
   });
 
-  it("filters correctly by room text", () => {
+  it("filters correctly by room text", async () => {
+    const user = userEvent.setup();
     render(
       <SyllabusDataBrowser data={mockData} totalRooms={2} totalSubjects={5} />,
     );
@@ -80,20 +95,21 @@ describe("SyllabusDataBrowser Component", () => {
     const input = screen.getByPlaceholderText("科目名・教室名で検索...");
 
     // Type "202教室"
-    fireEvent.change(input, { target: { value: "202" } });
+    await user.type(input, "202");
 
     expect(screen.queryByText("プログラミング基礎")).toBeNull();
     expect(screen.getByText("英語講読")).toBeDefined();
     expect(screen.getByText("歴史学")).toBeDefined();
   });
 
-  it("filters correctly by season", () => {
+  it("filters correctly by season", async () => {
+    const user = userEvent.setup();
     render(
       <SyllabusDataBrowser data={mockData} totalRooms={2} totalSubjects={5} />,
     );
 
     const zenkiButton = screen.getByRole("button", { name: "前期" });
-    fireEvent.click(zenkiButton);
+    await user.click(zenkiButton);
 
     expect(screen.getByText("プログラミング基礎")).toBeDefined();
     expect(screen.queryByText("基礎数学")).toBeNull(); // it's 後期
@@ -101,20 +117,8 @@ describe("SyllabusDataBrowser Component", () => {
     expect(screen.queryByText("歴史学")).toBeNull(); // it's 後期
   });
 
-  it("handles pagination correctly", () => {
-    // Generate 25 items to test pagination
-    const largeMockData: Record<
-      string,
-      { subject: string; room: string; season: string; open_time: string }[]
-    > = {
-      LargeRoom: Array.from({ length: 25 }).map((_, i) => ({
-        subject: `TEST${i} : テスト科目${i}`,
-        room: "LargeRoom",
-        season: "前期",
-        open_time: `時限${i}`,
-      })),
-    };
-
+  it("handles pagination correctly", async () => {
+    const user = userEvent.setup();
     render(
       <SyllabusDataBrowser
         data={largeMockData}
@@ -133,7 +137,7 @@ describe("SyllabusDataBrowser Component", () => {
 
     // Go to next page
     const nextButton = screen.getByRole("button", { name: "次 →" });
-    fireEvent.click(nextButton);
+    await user.click(nextButton);
 
     expect(screen.queryByText("テスト科目0")).toBeNull();
     expect(screen.getByText("テスト科目20")).toBeDefined();
@@ -141,13 +145,14 @@ describe("SyllabusDataBrowser Component", () => {
     expect(screen.getByText("21–25 / 25 件")).toBeDefined();
   });
 
-  it("shows empty state when no data matches", () => {
+  it("shows empty state when no data matches", async () => {
+    const user = userEvent.setup();
     render(
       <SyllabusDataBrowser data={mockData} totalRooms={2} totalSubjects={5} />,
     );
 
     const input = screen.getByPlaceholderText("科目名・教室名で検索...");
-    fireEvent.change(input, { target: { value: "NO_MATCH_TEXT" } });
+    await user.type(input, "NO_MATCH_TEXT");
 
     expect(screen.getByText("該当するデータがありません")).toBeDefined();
     expect(screen.getByText("0")).toBeDefined(); // items count updated
