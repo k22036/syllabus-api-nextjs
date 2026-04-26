@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import type { SyllabusData } from "../../_types/syllabus";
 import rawData from "../../data/shaped_data.json";
 import { SYLLABUS_HEADERS } from "./constants";
+import { syllabusQuerySchema } from "./schema";
 
 const data = rawData as SyllabusData;
 
@@ -11,13 +12,14 @@ const fullEtag = `"${createHash("sha256").update(fullSerialized).digest("hex").s
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const searchParams = url.searchParams;
 
-  // フィルタリングパラメータの取得
-  const subjectQuery = searchParams.get("subject")?.toLowerCase() || null;
-  const roomQuery = searchParams.get("room")?.toLowerCase() || null;
-  const seasonQuery = searchParams.get("season") || null;
-  const openTimeQuery = searchParams.get("open_time") || null;
+  // フィルタリングパラメータのパースと型変換（小文字化を含む）
+  const query = syllabusQuerySchema.parse(Object.fromEntries(url.searchParams));
+
+  const subjectQuery = query.subject || null;
+  const roomQuery = query.room || null;
+  const seasonQuery = query.season || null;
+  const openTimeQuery = query.open_time || null;
 
   let filteredSerialized = fullSerialized;
   let currentEtag = fullEtag;
