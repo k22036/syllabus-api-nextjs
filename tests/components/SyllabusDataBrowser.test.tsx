@@ -2,8 +2,9 @@ import { describe, expect, it } from "bun:test";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SyllabusDataBrowser from "../../app/_components/SyllabusDataBrowser";
+import type { SyllabusData } from "../../app/_types/syllabus";
 
-const mockData = {
+const mockData: SyllabusData = {
   "101教室": [
     {
       subject: "COMP101 : プログラミング基礎",
@@ -40,10 +41,7 @@ const mockData = {
   ],
 };
 
-const largeMockData: Record<
-  string,
-  { subject: string; room: string; season: string; open_time: string }[]
-> = {
+const largeMockData: SyllabusData = {
   LargeRoom: Array.from({ length: 25 }).map((_, i) => ({
     subject: `TEST${i} : テスト科目${i}`,
     room: "LargeRoom",
@@ -147,10 +145,7 @@ describe("SyllabusDataBrowser Component", () => {
 
   it("handles out-of-bounds page navigation correctly when data shrinks securely using safePage", async () => {
     const user = userEvent.setup();
-    const hugeMockData: Record<
-      string,
-      { subject: string; room: string; season: string; open_time: string }[]
-    > = {
+    const hugeMockData: SyllabusData = {
       Room: Array.from({ length: 45 }).map((_, i) => ({
         subject: `TEST${i} : テスト科目${i}`,
         room: "Room",
@@ -159,10 +154,7 @@ describe("SyllabusDataBrowser Component", () => {
       })),
     };
 
-    const shrunkMockData: Record<
-      string,
-      { subject: string; room: string; season: string; open_time: string }[]
-    > = {
+    const shrunkMockData: SyllabusData = {
       Room: Array.from({ length: 25 }).map((_, i) => ({
         subject: `TEST${i} : テスト科目${i}`,
         room: "Room",
