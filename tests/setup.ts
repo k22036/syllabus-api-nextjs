@@ -19,13 +19,12 @@ const { cleanup } = require("@testing-library/react");
 // Restore Bun's native Fetch API so that:
 //  - API-level tests (tests/api/**) keep using the real Request / Response
 //  - Component tests that mock globalThis.fetch get a consistent baseline
-globalThis.fetch = nativeFetch;
-globalThis.Request = nativeRequest;
-globalThis.Response = nativeResponse;
-globalThis.Headers = nativeHeaders;
-
 // Unmount every React tree and clean the DOM after each test so that
 // tests are fully isolated from each other.
 afterEach(() => {
+  globalThis.fetch = nativeFetch;
+  globalThis.Request = nativeRequest;
+  globalThis.Response = nativeResponse;
+  globalThis.Headers = nativeHeaders;
   cleanup();
 });
