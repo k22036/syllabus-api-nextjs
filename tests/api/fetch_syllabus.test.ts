@@ -115,7 +115,8 @@ describe("GET /api/fetch_syllabus", () => {
       const conditionalResponse = await GET(conditionalRequest);
 
       expect(conditionalResponse.status).toBe(304);
-      expect(conditionalResponse.headers.get("cache-control")).not.toBeNull();
+      const cacheControl = conditionalResponse.headers.get("cache-control");
+      expect(cacheControl).toBe(SYLLABUS_HEADERS.cacheControl);
     });
 
     test("ETag が一致しない場合、200 を返しボディが存在すること", async () => {
