@@ -1,17 +1,10 @@
 "use client";
 
-import type { JSX } from "react";
 import { useMemo, useState } from "react";
-
-type SyllabusItem = {
-  subject: string;
-  room: string;
-  season: string;
-  open_time: string;
-};
+import type { SyllabusData } from "../_types/syllabus";
 
 type Props = {
-  data: Record<string, SyllabusItem[]>;
+  data: SyllabusData;
   totalRooms: number;
   totalSubjects: number;
 };
@@ -32,24 +25,43 @@ function parseSubject(subject: string): { code: string; name: string } {
 
 const SEASONS = ["すべて", "前期", "後期"] as const;
 
-const CARD_BASE =
-  "rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3";
+type Season = (typeof SEASONS)[number];
+
+type StatCardProps = {
+  label: string;
+  value: number;
+  highlight?: boolean;
+};
+
+function StatCard({ label, value, highlight = false }: StatCardProps) {
+  return (
+    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3">
+      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+      <p
+        className={`text-2xl font-bold mt-0.5 ${
+          highlight
+            ? "text-blue-600 dark:text-blue-400"
+            : "text-gray-900 dark:text-gray-100"
+        }`}
+      >
+        {value.toLocaleString()}
+      </p>
+    </div>
+  );
+}
 
 export default function SyllabusDataBrowser({
   data,
   totalRooms,
   totalSubjects,
-}: Props): JSX.Element {
-  const [search, setSearch] = useState<string>("");
-  const [season, setSeason] = useState<string>("すべて");
-  const [page, setPage] = useState<number>(1);
+}: Props) {
+  const [search, setSearch] = useState("");
+  const [season, setSeason] = useState<Season>("すべて");
+  const [page, setPage] = useState(1);
 
-  const allItems = useMemo<SyllabusItem[]>(
-    () => Object.values(data).flat(),
-    [data],
-  );
+  const allItems = useMemo(() => Object.values(data).flat(), [data]);
 
-  const filtered = useMemo<SyllabusItem[]>(() => {
+  const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return allItems.filter((item) => {
       const matchesSearch =
@@ -72,7 +84,7 @@ export default function SyllabusDataBrowser({
     setPage(1);
   }
 
-  function handleSeasonChange(value: string): void {
+  function handleSeasonChange(value: Season): void {
     setSeason(value);
     setPage(1);
   }
@@ -81,26 +93,9 @@ export default function SyllabusDataBrowser({
     <div className="space-y-4">
       {/* ── Stats row ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className={CARD_BASE}>
-          <p className="text-xs text-gray-500 dark:text-gray-400">教室数</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-0.5">
-            {totalRooms.toLocaleString()}
-          </p>
-        </div>
-        <div className={CARD_BASE}>
-          <p className="text-xs text-gray-500 dark:text-gray-400">授業数</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-0.5">
-            {totalSubjects.toLocaleString()}
-          </p>
-        </div>
-        <div className={CARD_BASE}>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            絞り込み結果
-          </p>
-          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-0.5">
-            {filtered.length.toLocaleString()}
-          </p>
-        </div>
+        <StatCard label="教室数" value={totalRooms} />
+        <StatCard label="授業数" value={totalSubjects} />
+        <StatCard label="絞り込み結果" value={filtered.length} highlight />
       </div>
 
       {/* ── Filters ───────────────────────────────────────────────── */}

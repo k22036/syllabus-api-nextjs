@@ -1,21 +1,13 @@
 import type { Metadata } from "next";
 import ApiExplorer from "./_components/ApiExplorer";
 import SyllabusDataBrowser from "./_components/SyllabusDataBrowser";
+import type { SyllabusData } from "./_types/syllabus";
 import syllabusData from "./data/shaped_data.json";
 
 export const metadata: Metadata = {
   title: "Syllabus API",
   description: "シラバス情報取得 REST API",
 };
-
-type SyllabusItem = {
-  subject: string;
-  room: string;
-  season: string;
-  open_time: string;
-};
-
-type SyllabusData = Record<string, SyllabusItem[]>;
 
 const data = syllabusData as unknown as SyllabusData;
 

@@ -1,6 +1,5 @@
 "use client";
 
-import type { JSX } from "react";
 import { useState } from "react";
 
 type ResponseData = {
@@ -72,11 +71,35 @@ function statusBadgeClass(status: number): string {
   return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
 }
 
-export default function ApiExplorer(): JSX.Element {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [useEtag, setUseEtag] = useState<boolean>(false);
+type CollapsibleSectionProps = {
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+};
+
+function CollapsibleSection({
+  title,
+  defaultOpen = false,
+  children,
+}: CollapsibleSectionProps) {
+  return (
+    <details open={defaultOpen || undefined} className="group">
+      <summary className="list-none cursor-pointer text-xs font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
+        <span className="inline-block transition-transform group-open:rotate-90">
+          ▶
+        </span>
+        {title}
+      </summary>
+      {children}
+    </details>
+  );
+}
+
+export default function ApiExplorer() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [useEtag, setUseEtag] = useState(false);
   const [storedEtag, setStoredEtag] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [responseData, setResponseData] = useState<ResponseData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -276,13 +299,7 @@ export default function ApiExplorer(): JSX.Element {
               </div>
 
               {/* Response Headers collapsible */}
-              <details className="group">
-                <summary className="list-none cursor-pointer text-xs font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
-                  <span className="inline-block transition-transform group-open:rotate-90">
-                    ▶
-                  </span>
-                  Response Headers
-                </summary>
+              <CollapsibleSection title="Response Headers">
                 <div className="mt-2 rounded bg-gray-50 dark:bg-gray-800 p-3 text-xs font-mono space-y-0.5">
                   {Object.entries(responseData.headers).map(([key, value]) => (
                     <div
@@ -296,7 +313,7 @@ export default function ApiExplorer(): JSX.Element {
                     </div>
                   ))}
                 </div>
-              </details>
+              </CollapsibleSection>
 
               {/* Response Body or 304 note */}
               {responseData.status === 304 ? (
@@ -304,17 +321,11 @@ export default function ApiExplorer(): JSX.Element {
                   ✓ 304 Not Modified — データは変更されていません。
                 </div>
               ) : (
-                <details open className="group">
-                  <summary className="list-none cursor-pointer text-xs font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
-                    <span className="inline-block transition-transform group-open:rotate-90">
-                      ▶
-                    </span>
-                    Response Body
-                  </summary>
+                <CollapsibleSection title="Response Body" defaultOpen>
                   <pre className="mt-2 bg-gray-50 dark:bg-gray-800 p-3 text-xs overflow-auto max-h-64 rounded">
                     {formatBody(responseData.body)}
                   </pre>
-                </details>
+                </CollapsibleSection>
               )}
             </div>
           )}
