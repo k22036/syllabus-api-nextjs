@@ -27,31 +27,23 @@ export async function GET(request: Request) {
   // フィルタリング条件が一つでも存在する場合はフィルタリング処理を行う
   if (subjectQuery || roomQuery || seasonQuery || openTimeQuery) {
     const filteredData: SyllabusData = {};
+
     for (const [roomName, items] of Object.entries(data)) {
-      const filteredItems = items.filter((item) => {
-        let isMatch = true;
-        if (
-          subjectQuery &&
-          !item.subject.toLowerCase().includes(subjectQuery)
-        ) {
-          isMatch = false;
-        }
-        if (roomQuery && !item.room.toLowerCase().includes(roomQuery)) {
-          isMatch = false;
-        }
-        if (seasonQuery && item.season !== seasonQuery) {
-          isMatch = false;
-        }
-        if (openTimeQuery && item.open_time !== openTimeQuery) {
-          isMatch = false;
-        }
-        return isMatch;
-      });
+      if (roomQuery && !roomName.toLowerCase().includes(roomQuery)) continue;
+
+      const filteredItems = items.filter(
+        (item) =>
+          (!subjectQuery ||
+            item.subject.toLowerCase().includes(subjectQuery)) &&
+          (!seasonQuery || item.season === seasonQuery) &&
+          (!openTimeQuery || item.open_time === openTimeQuery),
+      );
 
       if (filteredItems.length > 0) {
         filteredData[roomName] = filteredItems;
       }
     }
+
     filteredSerialized = JSON.stringify(filteredData);
     currentEtag = `"${createHash("sha256").update(filteredSerialized).digest("hex").slice(0, 16)}"`;
   }
