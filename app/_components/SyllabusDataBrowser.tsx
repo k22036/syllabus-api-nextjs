@@ -59,7 +59,13 @@ export default function SyllabusDataBrowser({
   const [season, setSeason] = useState<Season>("すべて");
   const [page, setPage] = useState(1);
 
-  const allItems = useMemo(() => Object.values(data).flat(), [data]);
+  const allItems = useMemo(
+    () =>
+      Object.values(data)
+        .flat()
+        .map((item, index) => ({ ...item, _uid: index })),
+    [data],
+  );
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -162,7 +168,7 @@ export default function SyllabusDataBrowser({
                 const isSenki = item.season === "前期";
                 return (
                   <tr
-                    key={`${item.subject}-${item.room}-${item.season}-${item.open_time}`}
+                    key={item._uid}
                     className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
