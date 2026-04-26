@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { z } from "zod";
-import { RESPONSE_HEADERS_DOCS } from "../../app/_components/ApiExplorer";
-import { SYLLABUS_HEADERS } from "../../app/api/fetch_syllabus/constants";
+import {
+  RESPONSE_HEADERS_DOCS,
+  SYLLABUS_HEADERS,
+} from "../../app/api/fetch_syllabus/constants";
 import { GET } from "../../app/api/fetch_syllabus/route";
 
 // スキーマ定義
