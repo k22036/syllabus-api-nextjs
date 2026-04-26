@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { z } from "zod";
+import {
+  RESPONSE_HEADERS_DOCS,
+  SYLLABUS_HEADERS,
+} from "../../app/api/fetch_syllabus/constants";
 import { GET } from "../../app/api/fetch_syllabus/route";
 
 // スキーマ定義
@@ -38,18 +42,26 @@ describe("GET /api/fetch_syllabus", () => {
       const request = createRequest();
       const response = await GET(request);
       const cacheControl = response.headers.get("cache-control");
-      expect(cacheControl).not.toBeNull();
-      expect(cacheControl).toContain("public");
-      expect(cacheControl).toContain("max-age=");
-      expect(cacheControl).toContain("stale-while-revalidate=");
+      expect(cacheControl).toBe(SYLLABUS_HEADERS.cacheControl);
+
+      // UIのドキュメントと実際の値が一致していることも確認
+      const docsCacheControl = RESPONSE_HEADERS_DOCS.find(
+        (h) => h.name === "Cache-Control",
+      );
+      expect(docsCacheControl?.value).toBe(SYLLABUS_HEADERS.cacheControl);
     });
 
     test("Content-Type が application/json であること", async () => {
       const request = createRequest();
       const response = await GET(request);
-      expect(response.headers.get("content-type")).toContain(
-        "application/json",
+      const contentType = response.headers.get("content-type");
+      expect(contentType).toBe(SYLLABUS_HEADERS.contentType);
+
+      // UIのドキュメントと実際の値が一致していることも確認
+      const docsContentType = RESPONSE_HEADERS_DOCS.find(
+        (h) => h.name === "Content-Type",
       );
+      expect(docsContentType?.value).toBe(SYLLABUS_HEADERS.contentType);
     });
 
     test("レスポンスボディがスキーマに準拠していること", async () => {
@@ -103,7 +115,8 @@ describe("GET /api/fetch_syllabus", () => {
       const conditionalResponse = await GET(conditionalRequest);
 
       expect(conditionalResponse.status).toBe(304);
-      expect(conditionalResponse.headers.get("cache-control")).not.toBeNull();
+      const cacheControl = conditionalResponse.headers.get("cache-control");
+      expect(cacheControl).toBe(SYLLABUS_HEADERS.cacheControl);
     });
 
     test("ETag が一致しない場合、200 を返しボディが存在すること", async () => {
