@@ -109,6 +109,68 @@ describe("ApiExplorer Component", () => {
     });
   });
 
+  it("sends a request with query parameters when filters are filled", async () => {
+    const user = userEvent.setup();
+    const fetchMockFn = mock(async (...args: Parameters<typeof fetch>) => {
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: new Headers(),
+      });
+    });
+    globalThis.fetch = fetchMockFn as unknown as typeof globalThis.fetch;
+
+    render(<ApiExplorer />);
+
+    // Open try it panel
+    await user.click(screen.getByRole("button", { name: "Try it" }));
+
+    // Fill in filter inputs
+    const subjectInput = screen.getByLabelText("subject");
+    const roomInput = screen.getByLabelText("room");
+    const seasonInput = screen.getByLabelText("season");
+    const timeInput = screen.getByLabelText("open_time");
+
+    await user.type(subjectInput, "math");
+    await user.type(roomInput, "101");
+    // Leave season and time empty to verify they are omitted if empty
+
+    await user.click(screen.getByRole("button", { name: "Send Request" }));
+
+    await waitFor(() => {
+      expect(fetchMockFn).toHaveBeenCalled();
+    });
+
+    // Check the URL passed to fetch
+    const fetchArgs = fetchMockFn.mock.calls[0] as Parameters<typeof fetch>;
+    expect(fetchArgs[0]).toBe("/api/fetch_syllabus?subject=math&room=101");
+
+    // Add another parameter
+    await user.type(seasonInput, "fall");
+    await user.click(screen.getByRole("button", { name: "Send Request" }));
+
+    await waitFor(() => {
+      expect(fetchMockFn).toHaveBeenCalledTimes(2);
+    });
+
+    const fetchArgs2 = fetchMockFn.mock.calls[1] as Parameters<typeof fetch>;
+    expect(fetchArgs2[0]).toBe(
+      "/api/fetch_syllabus?subject=math&room=101&season=fall",
+    );
+
+    // Add yet another parameter
+    await user.type(timeInput, "月1");
+    await user.click(screen.getByRole("button", { name: "Send Request" }));
+
+    await waitFor(() => {
+      expect(fetchMockFn).toHaveBeenCalledTimes(3);
+    });
+
+    const fetchArgs3 = fetchMockFn.mock.calls[2] as Parameters<typeof fetch>;
+    expect(fetchArgs3[0]).toBe(
+      "/api/fetch_syllabus?subject=math&room=101&season=fall&open_time=%E6%9C%881",
+    );
+  });
+
   it("handles network errors", async () => {
     const user = userEvent.setup();
     setupFetchMock(async () => {

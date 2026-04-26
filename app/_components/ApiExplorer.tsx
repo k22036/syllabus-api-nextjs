@@ -3,6 +3,7 @@
 import { useReducer } from "react";
 import {
   REQUEST_HEADERS_DOCS,
+  REQUEST_QUERY_DOCS,
   RESPONSE_HEADERS_DOCS,
 } from "../api/fetch_syllabus/constants";
 
@@ -70,6 +71,10 @@ type ApiExplorerState = {
   loading: boolean;
   responseData: ResponseData | null;
   error: string | null;
+  subject: string;
+  room: string;
+  season: string;
+  open_time: string;
 };
 
 type ApiExplorerAction =
@@ -80,7 +85,8 @@ type ApiExplorerAction =
       type: "FETCH_SUCCESS";
       payload: { responseData: ResponseData; etag: string | null };
     }
-  | { type: "FETCH_ERROR"; payload: string };
+  | { type: "FETCH_ERROR"; payload: string }
+  | { type: "SET_QUERY_PARAM"; payload: { name: string; value: string } };
 
 function apiExplorerReducer(
   state: ApiExplorerState,
@@ -103,6 +109,8 @@ function apiExplorerReducer(
       };
     case "FETCH_ERROR":
       return { ...state, loading: false, error: action.payload };
+    case "SET_QUERY_PARAM":
+      return { ...state, [action.payload.name]: action.payload.value };
     default:
       return state;
   }
@@ -116,9 +124,24 @@ export default function ApiExplorer() {
     loading: false,
     responseData: null,
     error: null,
+    subject: "",
+    room: "",
+    season: "",
+    open_time: "",
   });
 
-  const { isOpen, useEtag, storedEtag, loading, responseData, error } = state;
+  const {
+    isOpen,
+    useEtag,
+    storedEtag,
+    loading,
+    responseData,
+    error,
+    subject,
+    room,
+    season,
+    open_time,
+  } = state;
 
   async function sendRequest(): Promise<void> {
     dispatch({ type: "FETCH_START" });
@@ -130,7 +153,14 @@ export default function ApiExplorer() {
 
     const start = performance.now();
     try {
-      const res = await fetch("/api/fetch_syllabus", { headers });
+      const params = new URLSearchParams();
+      if (subject.trim()) params.append("subject", subject.trim());
+      if (room.trim()) params.append("room", room.trim());
+      if (season.trim()) params.append("season", season.trim());
+      if (open_time.trim()) params.append("open_time", open_time.trim());
+
+      const queryString = params.toString() ? `?${params.toString()}` : "";
+      const res = await fetch(`/api/fetch_syllabus${queryString}`, { headers });
       const duration = Math.round(performance.now() - start);
 
       const responseHeaders: Record<string, string> = {};
@@ -189,7 +219,40 @@ export default function ApiExplorer() {
 
       {/* ── Documentation grid ──────────────────────────────────────── */}
       <div className="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {/* Query Parameters */}
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+              Query Parameters
+            </h3>
+            <table className="w-full text-xs border-separate border-spacing-0">
+              <thead>
+                <tr className="text-left text-gray-500 dark:text-gray-400">
+                  <th className="pb-1 pr-3 font-medium">Name</th>
+                  <th className="pb-1 pr-3 font-medium">Type</th>
+                  <th className="pb-1 font-medium">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {REQUEST_QUERY_DOCS.map((h) => (
+                  <tr key={h.name} className="align-top">
+                    <td className="py-1 pr-3">
+                      <code className="font-mono text-emerald-700 dark:text-emerald-400 whitespace-nowrap">
+                        {h.name}
+                      </code>
+                    </td>
+                    <td className="py-1 pr-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      {h.type}
+                    </td>
+                    <td className="py-1 text-gray-600 dark:text-gray-300">
+                      {h.description}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
           {/* Request Headers */}
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
@@ -261,6 +324,34 @@ export default function ApiExplorer() {
       {/* ── Try it panel ────────────────────────────────────────────── */}
       {isOpen && (
         <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+            {(["subject", "room", "season", "open_time"] as const).map(
+              (param) => (
+                <div key={param} className="space-y-1">
+                  <label
+                    htmlFor={`query-${param}`}
+                    className="text-xs font-medium text-gray-600 dark:text-gray-400 block pb-1"
+                  >
+                    {param}
+                  </label>
+                  <input
+                    id={`query-${param}`}
+                    type="text"
+                    value={state[param]}
+                    onChange={(e) =>
+                      dispatch({
+                        type: "SET_QUERY_PARAM",
+                        payload: { name: param, value: e.target.value },
+                      })
+                    }
+                    className="block w-full rounded border border-gray-300 bg-white text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 py-1.5 px-2 outline-none focus:ring-2 focus:border-emerald-500 focus:ring-emerald-500/20"
+                    placeholder={`...`}
+                  />
+                </div>
+              ),
+            )}
+          </div>
+
           {/* Controls row */}
           <div className="flex flex-wrap items-center gap-4">
             <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 select-none cursor-pointer">
