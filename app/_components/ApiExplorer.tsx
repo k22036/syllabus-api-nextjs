@@ -1,6 +1,11 @@
 "use client";
 
 import { useReducer } from "react";
+import {
+  CACHE_AGE_SECONDS,
+  STALE_WHILE_REVALIDATE_SECONDS,
+  SYLLABUS_HEADERS,
+} from "../api/fetch_syllabus/constants";
 
 type ResponseData = {
   status: number;
@@ -9,7 +14,7 @@ type ResponseData = {
   duration: number;
 };
 
-const REQUEST_HEADERS_DOCS: Array<{
+export const REQUEST_HEADERS_DOCS: Array<{
   name: string;
   type: string;
   description: string;
@@ -22,14 +27,14 @@ const REQUEST_HEADERS_DOCS: Array<{
   },
 ];
 
-const RESPONSE_HEADERS_DOCS: Array<{
+export const RESPONSE_HEADERS_DOCS: Array<{
   name: string;
   value: string;
   description: string;
 }> = [
   {
     name: "Content-Type",
-    value: "application/json; charset=UTF-8",
+    value: SYLLABUS_HEADERS.contentType,
     description: "レスポンスボディの MIME タイプとエンコーディング。",
   },
   {
@@ -40,8 +45,8 @@ const RESPONSE_HEADERS_DOCS: Array<{
   },
   {
     name: "Cache-Control",
-    value: "public, max-age=60, stale-while-revalidate=300",
-    description: "60 秒キャッシュし、最大 300 秒の古いレスポンス配信を許可。",
+    value: SYLLABUS_HEADERS.cacheControl,
+    description: `${CACHE_AGE_SECONDS} 秒キャッシュし、最大 ${STALE_WHILE_REVALIDATE_SECONDS} 秒の古いレスポンス配信を許可。`,
   },
 ];
 
