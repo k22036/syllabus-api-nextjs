@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useReducer } from "react";
 
 type ResponseData = {
   status: number;
@@ -95,18 +95,65 @@ function CollapsibleSection({
   );
 }
 
+type ApiExplorerState = {
+  isOpen: boolean;
+  useEtag: boolean;
+  storedEtag: string | null;
+  loading: boolean;
+  responseData: ResponseData | null;
+  error: string | null;
+};
+
+type ApiExplorerAction =
+  | { type: "TOGGLE_OPEN" }
+  | { type: "TOGGLE_USE_ETAG"; payload: boolean }
+  | { type: "FETCH_START" }
+  | {
+      type: "FETCH_SUCCESS";
+      payload: { responseData: ResponseData; etag: string | null };
+    }
+  | { type: "FETCH_ERROR"; payload: string };
+
+function apiExplorerReducer(
+  state: ApiExplorerState,
+  action: ApiExplorerAction,
+): ApiExplorerState {
+  switch (action.type) {
+    case "TOGGLE_OPEN":
+      return { ...state, isOpen: !state.isOpen };
+    case "TOGGLE_USE_ETAG":
+      return { ...state, useEtag: action.payload };
+    case "FETCH_START":
+      return { ...state, loading: true, error: null, responseData: null };
+    case "FETCH_SUCCESS":
+      return {
+        ...state,
+        loading: false,
+        responseData: action.payload.responseData,
+        storedEtag:
+          action.payload.etag !== null ? action.payload.etag : state.storedEtag,
+      };
+    case "FETCH_ERROR":
+      return { ...state, loading: false, error: action.payload };
+    default:
+      return state;
+  }
+}
+
 export default function ApiExplorer() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [useEtag, setUseEtag] = useState(false);
-  const [storedEtag, setStoredEtag] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [responseData, setResponseData] = useState<ResponseData | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [state, dispatch] = useReducer(apiExplorerReducer, {
+    isOpen: false,
+    useEtag: false,
+    storedEtag: null,
+    loading: false,
+    responseData: null,
+    error: null,
+  });
+
+  const { isOpen, useEtag, storedEtag, loading, responseData, error } = state;
 
   async function sendRequest(): Promise<void> {
-    setLoading(true);
-    setError(null);
-    setResponseData(null);
+    dispatch({ type: "FETCH_START" });
 
     const headers: Record<string, string> = {};
     if (useEtag && storedEtag !== null) {
@@ -124,25 +171,28 @@ export default function ApiExplorer() {
       });
 
       const etag = res.headers.get("etag");
-      if (etag !== null) {
-        setStoredEtag(etag);
-      }
-
       let body = "";
       if (res.status !== 304) {
         body = await res.text();
       }
 
-      setResponseData({
-        status: res.status,
-        headers: responseHeaders,
-        body,
-        duration,
+      dispatch({
+        type: "FETCH_SUCCESS",
+        payload: {
+          responseData: {
+            status: res.status,
+            headers: responseHeaders,
+            body,
+            duration,
+          },
+          etag,
+        },
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error occurred");
-    } finally {
-      setLoading(false);
+      dispatch({
+        type: "FETCH_ERROR",
+        payload: err instanceof Error ? err.message : "Unknown error occurred",
+      });
     }
   }
 
@@ -162,7 +212,7 @@ export default function ApiExplorer() {
         </p>
         <button
           type="button"
-          onClick={() => setIsOpen((prev) => !prev)}
+          onClick={() => dispatch({ type: "TOGGLE_OPEN" })}
           className="shrink-0 text-xs font-medium px-3 py-1 rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
           {isOpen ? "閉じる" : "Try it"}
@@ -250,7 +300,12 @@ export default function ApiExplorer() {
                 type="checkbox"
                 checked={useEtag}
                 disabled={storedEtag === null}
-                onChange={(e) => setUseEtag(e.target.checked)}
+                onChange={(e) =>
+                  dispatch({
+                    type: "TOGGLE_USE_ETAG",
+                    payload: e.target.checked,
+                  })
+                }
                 className="rounded border-gray-300 dark:border-gray-600 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
               />
               <span>If-None-Match を使用</span>
