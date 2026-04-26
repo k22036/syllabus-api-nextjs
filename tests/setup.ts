@@ -14,7 +14,7 @@ const nativeHeaders = globalThis.Headers;
 GlobalRegistrator.register();
 
 // Require @testing-library/react AFTER the DOM is registered
-const { cleanup } = require("@testing-library/react");
+const { cleanup } = await import("@testing-library/react");
 
 // Restore Bun's native Fetch API so that:
 //  - API-level tests (tests/api/**) keep using the real Request / Response
