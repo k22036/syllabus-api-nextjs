@@ -114,6 +114,7 @@ export default function SyllabusDataBrowser({
           type="text"
           value={search}
           onChange={handleSearchChange}
+          aria-label="科目名・教室名で検索"
           placeholder="科目名・教室名で検索..."
           className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
