@@ -89,6 +89,10 @@ export default function SyllabusDataBrowser({
     setPage(1);
   }
 
+  function handlePageChange(delta: number): void {
+    setPage((p) => Math.max(1, Math.min(p, pageCount)) + delta);
+  }
+
   return (
     <div className="space-y-4">
       {/* ── Stats row ─────────────────────────────────────────────── */}
@@ -202,7 +206,7 @@ export default function SyllabusDataBrowser({
             <button
               type="button"
               disabled={safePage <= 1}
-              onClick={() => setPage((p) => p - 1)}
+              onClick={() => handlePageChange(-1)}
               className="px-3 py-1.5 rounded border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               ← 前
@@ -213,7 +217,7 @@ export default function SyllabusDataBrowser({
             <button
               type="button"
               disabled={safePage >= pageCount}
-              onClick={() => setPage((p) => p + 1)}
+              onClick={() => handlePageChange(1)}
               className="px-3 py-1.5 rounded border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               次 →

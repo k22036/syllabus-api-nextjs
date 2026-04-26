@@ -145,6 +145,70 @@ describe("SyllabusDataBrowser Component", () => {
     expect(screen.getByText("21–25 / 25 件")).toBeDefined();
   });
 
+  it("handles out-of-bounds page navigation correctly when data shrinks securely using safePage", async () => {
+    const user = userEvent.setup();
+    const hugeMockData: Record<
+      string,
+      { subject: string; room: string; season: string; open_time: string }[]
+    > = {
+      Room: Array.from({ length: 45 }).map((_, i) => ({
+        subject: `TEST${i} : テスト科目${i}`,
+        room: "Room",
+        season: "前期",
+        open_time: `時限${i}`,
+      })),
+    };
+
+    const shrunkMockData: Record<
+      string,
+      { subject: string; room: string; season: string; open_time: string }[]
+    > = {
+      Room: Array.from({ length: 25 }).map((_, i) => ({
+        subject: `TEST${i} : テスト科目${i}`,
+        room: "Room",
+        season: "前期",
+        open_time: `時限${i}`,
+      })),
+    };
+
+    const { rerender } = render(
+      <SyllabusDataBrowser
+        data={hugeMockData}
+        totalRooms={1}
+        totalSubjects={45}
+      />,
+    );
+
+    // Go to page 3
+    const nextButton = screen.getByRole("button", { name: "次 →" });
+    await user.click(nextButton); // to page 2
+    await user.click(nextButton); // to page 3
+
+    expect(screen.getByText("テスト科目40")).toBeDefined();
+    expect(screen.getByText("41–45 / 45 件")).toBeDefined();
+
+    // Shrink data (e.g., dynamic prop update filtering external to the component)
+    rerender(
+      <SyllabusDataBrowser
+        data={shrunkMockData}
+        totalRooms={1}
+        totalSubjects={25}
+      />,
+    );
+
+    // Because the max page is now 2, safePage shows page 2 items
+    expect(screen.getByText("テスト科目20")).toBeDefined();
+    expect(screen.getByText("21–25 / 25 件")).toBeDefined();
+
+    // Click Prev
+    const prevButton = screen.getByRole("button", { name: "← 前" });
+    await user.click(prevButton);
+
+    // safePage is 2, so clicking Prev should bring us to page 1 !
+    expect(screen.getByText("テスト科目0")).toBeDefined();
+    expect(screen.getByText("1–20 / 25 件")).toBeDefined();
+  });
+
   it("shows empty state when no data matches", async () => {
     const user = userEvent.setup();
     render(
