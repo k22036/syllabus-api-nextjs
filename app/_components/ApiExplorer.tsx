@@ -60,7 +60,7 @@ function formatBody(raw: string): string {
     for (const key of previewKeys) {
       preview[key] = parsed[key];
     }
-    return `// Showing 3 of ${total} rooms\n${JSON.stringify(preview, null, 2)}`;
+    return `// Showing ${Math.min(3, total)} of ${total} rooms\n${JSON.stringify(preview, null, 2)}`;
   } catch {
     return raw;
   }
