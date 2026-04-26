@@ -18,8 +18,18 @@ const SyllabusItemSchema = z.object({
 const ResponseSchema = z.record(z.string(), z.array(SyllabusItemSchema));
 
 const BASE_URL = "http://localhost/api/fetch_syllabus";
-const createRequest = (headers?: HeadersInit): Request =>
-  new Request(BASE_URL, { headers });
+const createRequest = (
+  headers?: HeadersInit,
+  query?: Record<string, string>,
+): Request => {
+  const url = new URL(BASE_URL);
+  if (query) {
+    for (const [key, value] of Object.entries(query)) {
+      url.searchParams.append(key, value);
+    }
+  }
+  return new Request(url.toString(), { headers });
+};
 
 describe("GET /api/fetch_syllabus", () => {
   describe("初回リクエスト（If-None-Match なし）", () => {
@@ -151,6 +161,60 @@ describe("GET /api/fetch_syllabus", () => {
       const secondEtag = secondResponse.headers.get("etag");
 
       expect(firstEtag).toBe(secondEtag);
+    });
+  });
+
+  describe("クエリパラメータによるフィルタリング", () => {
+    test("subject パラメータで部分一致フィルタリングができること", async () => {
+      const request = createRequest(undefined, { subject: "プログラミング" });
+      const response = await GET(request);
+      const data = (await response.json()) as Record<
+        string,
+        { subject: string; room: string; season: string; open_time: string }[]
+      >;
+
+      for (const items of Object.values(data)) {
+        for (const item of items) {
+          expect(item.subject.toLowerCase()).toContain("プログラミング");
+        }
+      }
+    });
+
+    test("room パラメータで部分一致フィルタリングができること", async () => {
+      const request = createRequest(undefined, { room: "101" });
+      const response = await GET(request);
+      const data = (await response.json()) as Record<
+        string,
+        { subject: string; room: string; season: string; open_time: string }[]
+      >;
+
+      for (const items of Object.values(data)) {
+        for (const item of items) {
+          expect(item.room.toLowerCase()).toContain("101");
+        }
+      }
+    });
+
+    test("season パラメータで完全一致フィルタリングができること", async () => {
+      const request = createRequest(undefined, { season: "前期" });
+      const response = await GET(request);
+      const data = (await response.json()) as Record<
+        string,
+        { subject: string; room: string; season: string; open_time: string }[]
+      >;
+
+      for (const items of Object.values(data)) {
+        for (const item of items) {
+          expect(item.season).toBe("前期");
+        }
+      }
+    });
+
+    test("該当データがない場合は空のオブジェクトが返ること", async () => {
+      const request = createRequest(undefined, { subject: "存在しない科目" });
+      const response = await GET(request);
+      const data = await response.json();
+      expect(data).toEqual({});
     });
   });
 });
