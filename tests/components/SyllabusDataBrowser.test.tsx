@@ -51,21 +51,21 @@ const largeMockData: SyllabusData = {
 };
 
 describe("SyllabusDataBrowser Component", () => {
+  function expectStatCard(label: string, value: string) {
+    const parentContainer = screen.getByText(label)
+      .parentElement as HTMLElement;
+    expect(within(parentContainer).getByText(value)).toBeDefined();
+  }
+
   it("renders correctly with given stats", () => {
     render(
       <SyllabusDataBrowser data={mockData} totalRooms={2} totalSubjects={5} />,
     );
 
     // Stats
-    const roomStat = screen.getByText("教室数").parentElement as HTMLElement;
-    expect(within(roomStat).getByText("2")).toBeDefined();
-
-    const subjectStat = screen.getByText("授業数").parentElement as HTMLElement;
-    expect(within(subjectStat).getByText("5")).toBeDefined();
-
-    const filteredStat = screen.getByText("絞り込み結果")
-      .parentElement as HTMLElement;
-    expect(within(filteredStat).getByText("5")).toBeDefined();
+    expectStatCard("教室数", "2");
+    expectStatCard("授業数", "5");
+    expectStatCard("絞り込み結果", "5");
 
     // Table items
     expect(screen.getByText("プログラミング基礎")).toBeDefined();
@@ -220,8 +220,6 @@ describe("SyllabusDataBrowser Component", () => {
     expect(screen.getByText("該当するデータがありません")).toBeDefined();
 
     // items count updated
-    const filteredStat = screen.getByText("絞り込み結果")
-      .parentElement as HTMLElement;
-    expect(within(filteredStat).getByText("0")).toBeDefined();
+    expectStatCard("絞り込み結果", "0");
   });
 });
