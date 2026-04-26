@@ -96,7 +96,7 @@ export default function SyllabusDataBrowser({
   }
 
   function handlePageChange(delta: number): void {
-    setPage((p) => Math.max(1, Math.min(p, pageCount)) + delta);
+    setPage(Math.max(1, Math.min(safePage + delta, pageCount)));
   }
 
   return (
