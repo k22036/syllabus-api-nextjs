@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SyllabusDataBrowser from "../../app/_components/SyllabusDataBrowser";
 import type { SyllabusData } from "../../app/_types/syllabus";
@@ -57,8 +57,15 @@ describe("SyllabusDataBrowser Component", () => {
     );
 
     // Stats
-    expect(screen.getByText("2")).toBeDefined(); // totalRooms
-    expect(screen.getAllByText("5").length).toBe(2); // totalSubjects / highlight count
+    const roomStat = screen.getByText("教室数").parentElement as HTMLElement;
+    expect(within(roomStat).getByText("2")).toBeDefined();
+
+    const subjectStat = screen.getByText("授業数").parentElement as HTMLElement;
+    expect(within(subjectStat).getByText("5")).toBeDefined();
+
+    const filteredStat = screen.getByText("絞り込み結果")
+      .parentElement as HTMLElement;
+    expect(within(filteredStat).getByText("5")).toBeDefined();
 
     // Table items
     expect(screen.getByText("プログラミング基礎")).toBeDefined();
@@ -211,6 +218,10 @@ describe("SyllabusDataBrowser Component", () => {
     await user.type(input, "NO_MATCH_TEXT");
 
     expect(screen.getByText("該当するデータがありません")).toBeDefined();
-    expect(screen.getByText("0")).toBeDefined(); // items count updated
+
+    // items count updated
+    const filteredStat = screen.getByText("絞り込み結果")
+      .parentElement as HTMLElement;
+    expect(within(filteredStat).getByText("0")).toBeDefined();
   });
 });
