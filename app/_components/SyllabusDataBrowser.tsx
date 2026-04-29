@@ -52,10 +52,14 @@ function useSyllabusBrowser(data: SyllabusData) {
   const exportCsv = useCallback(() => {
     const header = ["科目コード", "科目名", "教室", "学期", "開講時限"];
     const escapeField = (field: string) => {
-      if (field.includes('"') || field.includes(",") || field.includes("\n")) {
-        return `"${field.replace(/"/g, '""')}"`;
+      let str = field;
+      if (/^[=+\-@]/.test(str)) {
+        str = `'${str}`;
       }
-      return field;
+      if (str.includes('"') || str.includes(",") || str.includes("\n")) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
     };
     const rows = filtered.map((item) => {
       const { code, name } = parseSubject(item.subject);
@@ -73,7 +77,9 @@ function useSyllabusBrowser(data: SyllabusData) {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    requestAnimationFrame(() => {
+      URL.revokeObjectURL(url);
+    });
   }, [filtered, season]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
