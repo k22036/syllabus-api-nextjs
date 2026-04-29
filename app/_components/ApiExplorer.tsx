@@ -1,6 +1,7 @@
 "use client";
 
 import { useReducer, useState } from "react";
+import { formatJsonBody, getStatusBadgeClass } from "../_utils/formatters";
 import {
   REQUEST_HEADERS_DOCS,
   REQUEST_QUERY_DOCS,
@@ -13,32 +14,6 @@ type ResponseData = {
   body: string;
   duration: number;
 };
-
-function formatBody(raw: string): string {
-  try {
-    const parsed = JSON.parse(raw) as Record<string, unknown[]>;
-    const keys = Object.keys(parsed);
-    const total = keys.length;
-    const previewKeys = keys.slice(0, 3);
-    const preview: Record<string, unknown[]> = {};
-    for (const key of previewKeys) {
-      preview[key] = parsed[key];
-    }
-    return `// Showing ${Math.min(3, total)} of ${total} rooms\n${JSON.stringify(preview, null, 2)}`;
-  } catch {
-    return raw;
-  }
-}
-
-function statusBadgeClass(status: number): string {
-  if (status >= 200 && status < 300) {
-    return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200";
-  }
-  if (status >= 300 && status < 400) {
-    return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
-  }
-  return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-}
 
 type CollapsibleSectionProps = {
   title: string;
@@ -407,7 +382,7 @@ export default function ApiExplorer() {
               {/* Status + duration */}
               <div className="flex items-center gap-3">
                 <span
-                  className={`px-2 py-0.5 rounded text-xs font-bold ${statusBadgeClass(responseData.status)}`}
+                  className={`px-2 py-0.5 rounded text-xs font-bold ${getStatusBadgeClass(responseData.status)}`}
                 >
                   {responseData.status}
                 </span>
@@ -441,7 +416,7 @@ export default function ApiExplorer() {
               ) : (
                 <CollapsibleSection title="Response Body" defaultOpen>
                   <pre className="mt-2 bg-gray-50 dark:bg-gray-800 p-3 text-xs overflow-auto max-h-64 rounded">
-                    {formatBody(responseData.body)}
+                    {formatJsonBody(responseData.body)}
                   </pre>
                 </CollapsibleSection>
               )}

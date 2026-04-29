@@ -1,14 +1,15 @@
-import { createHash } from "node:crypto";
 import type { SyllabusData } from "../../_types/syllabus";
 import rawData from "../../data/shaped_data.json";
 import { SYLLABUS_HEADERS } from "./constants";
 import { syllabusQuerySchema } from "./schema";
+import { generateETag } from "./utils";
 
 const data = rawData as SyllabusData;
 
 // 事前にキャッシュしておくフルデータのシリアライズとETag
 const fullSerialized = JSON.stringify(data);
-const fullEtag = `"${createHash("sha256").update(fullSerialized).digest("hex").slice(0, 16)}"`;
+
+const fullEtag = generateETag(fullSerialized);
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -45,7 +46,7 @@ export async function GET(request: Request) {
     }
 
     filteredSerialized = JSON.stringify(filteredData);
-    currentEtag = `"${createHash("sha256").update(filteredSerialized).digest("hex").slice(0, 16)}"`;
+    currentEtag = generateETag(filteredSerialized);
   }
 
   const ifNoneMatch = request.headers.get("if-none-match");

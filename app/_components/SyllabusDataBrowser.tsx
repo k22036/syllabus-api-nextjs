@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { SyllabusData } from "../_types/syllabus";
+import { parseSubject } from "../_utils/formatters";
 
 type Props = {
   data: SyllabusData;
@@ -10,18 +11,6 @@ type Props = {
 };
 
 const PAGE_SIZE = 20;
-
-function parseSubject(subject: string): { code: string; name: string } {
-  const sep = " : ";
-  const idx = subject.indexOf(sep);
-  if (idx === -1) {
-    return { code: "", name: subject };
-  }
-  return {
-    code: subject.slice(0, idx),
-    name: subject.slice(idx + sep.length),
-  };
-}
 
 const SEASONS = ["すべて", "前期", "後期"] as const;
 
