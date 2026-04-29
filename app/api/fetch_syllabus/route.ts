@@ -1,3 +1,4 @@
+import z from "zod";
 import type { SyllabusData } from "../../_types/syllabus";
 import rawData from "../../data/shaped_data.json";
 import { SYLLABUS_HEADERS } from "./constants";
@@ -15,7 +16,22 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
 
   // フィルタリングパラメータのパースと型変換（小文字化を含む）
-  const query = syllabusQuerySchema.parse(Object.fromEntries(url.searchParams));
+  const parsed = syllabusQuerySchema.safeParse(
+    Object.fromEntries(url.searchParams),
+  );
+  if (!parsed.success) {
+    return new Response(
+      JSON.stringify({
+        error: "Invalid query parameters",
+        details: z.treeifyError(parsed.error),
+      }),
+      {
+        status: 400,
+        headers: { "content-type": SYLLABUS_HEADERS.contentType },
+      },
+    );
+  }
+  const query = parsed.data;
 
   const subjectQuery = query.subject || null;
   const roomQuery = query.room || null;
