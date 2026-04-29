@@ -53,7 +53,7 @@ function useSyllabusBrowser(data: SyllabusData) {
     const header = ["科目コード", "科目名", "教室", "学期", "開講時限"];
     const escapeField = (field: string) => {
       let str = field;
-      if (/^[=+\-@]/.test(str)) {
+      if (/^\s*[=+\-@]/.test(str)) {
         str = `'${str}`;
       }
       if (str.includes('"') || str.includes(",") || str.includes("\n")) {

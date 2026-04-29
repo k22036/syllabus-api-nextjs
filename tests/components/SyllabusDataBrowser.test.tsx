@@ -266,7 +266,7 @@ describe("SyllabusDataBrowser Component", () => {
             subject: 'CODE101 : "テスト"\n科目',
             room: '"101", 教室',
             season: "前期",
-            open_time: "=A1+B1", // formula injection trigger
+            open_time: "   =A1+B1", // formula injection trigger with leading whitespace
           },
         ],
       };
@@ -324,8 +324,8 @@ describe("SyllabusDataBrowser Component", () => {
       // 3. Verify Row Escaping: Code, Name, Room, Season, OpenTime
       // Name: "テスト"\n科目 => """テスト""\n科目"
       // Room: "101", 教室 => """101"", 教室"
-      // OpenTime: "=A1+B1" => "'=A1+B1"
-      const expectedRow = `CODE101,"""テスト""\n科目","""101"", 教室",前期,'=A1+B1`;
+      // OpenTime: "   =A1+B1" => "'   =A1+B1"
+      const expectedRow = `CODE101,"""テスト""\n科目","""101"", 教室",前期,'   =A1+B1`;
       expect(lines.slice(1).join("\n")).toBe(expectedRow);
 
       // Verify anchor click and document appending
