@@ -71,6 +71,7 @@ export async function GET(request: Request) {
       status: 304,
       headers: {
         "cache-control": SYLLABUS_HEADERS.cacheControl,
+        etag: currentEtag,
       },
     });
   }
