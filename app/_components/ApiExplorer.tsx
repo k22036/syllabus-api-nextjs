@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import {
   REQUEST_HEADERS_DOCS,
   REQUEST_QUERY_DOCS,
@@ -64,6 +64,63 @@ function CollapsibleSection({
   );
 }
 
+type DocTableItem = {
+  name: string;
+  type?: string;
+  value?: string;
+  description: string;
+};
+
+type DocTableProps = {
+  title: string;
+  items: DocTableItem[];
+  valueLabel?: string;
+  nameColorClass?: string;
+};
+
+function DocTable({
+  title,
+  items,
+  valueLabel = "Type",
+  nameColorClass = "text-emerald-700 dark:text-emerald-400",
+}: DocTableProps) {
+  return (
+    <div>
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+        {title}
+      </h3>
+      <table className="w-full text-xs border-separate border-spacing-0">
+        <thead>
+          <tr className="text-left text-gray-500 dark:text-gray-400">
+            <th className="pb-1 pr-3 font-medium">Name</th>
+            <th className="pb-1 pr-3 font-medium">{valueLabel}</th>
+            <th className="pb-1 font-medium">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((h) => (
+            <tr key={h.name} className="align-top">
+              <td className="py-1 pr-3">
+                <code
+                  className={`font-mono whitespace-nowrap ${nameColorClass}`}
+                >
+                  {h.name}
+                </code>
+              </td>
+              <td className="py-1 pr-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                {h.type || h.value}
+              </td>
+              <td className="py-1 text-gray-600 dark:text-gray-300">
+                {h.description}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 type ApiExplorerState = {
   isOpen: boolean;
   useEtag: boolean;
@@ -117,6 +174,7 @@ function apiExplorerReducer(
 }
 
 export default function ApiExplorer() {
+  const [copied, setCopied] = useState(false);
   const [state, dispatch] = useReducer(apiExplorerReducer, {
     isOpen: false,
     useEtag: false,
@@ -143,6 +201,17 @@ export default function ApiExplorer() {
     open_time,
   } = state;
 
+  const currentParams = new URLSearchParams();
+  if (subject.trim()) currentParams.append("subject", subject.trim());
+  if (room.trim()) currentParams.append("room", room.trim());
+  if (season.trim()) currentParams.append("season", season.trim());
+  if (open_time.trim()) currentParams.append("open_time", open_time.trim());
+
+  const currentQueryString = currentParams.toString()
+    ? `?${currentParams.toString()}`
+    : "";
+  const requestUrl = `/api/fetch_syllabus${currentQueryString}`;
+
   async function sendRequest(): Promise<void> {
     dispatch({ type: "FETCH_START" });
 
@@ -153,14 +222,7 @@ export default function ApiExplorer() {
 
     const start = performance.now();
     try {
-      const params = new URLSearchParams();
-      if (subject.trim()) params.append("subject", subject.trim());
-      if (room.trim()) params.append("room", room.trim());
-      if (season.trim()) params.append("season", season.trim());
-      if (open_time.trim()) params.append("open_time", open_time.trim());
-
-      const queryString = params.toString() ? `?${params.toString()}` : "";
-      const res = await fetch(`/api/fetch_syllabus${queryString}`, { headers });
+      const res = await fetch(requestUrl, { headers });
       const duration = Math.round(performance.now() - start);
 
       const responseHeaders: Record<string, string> = {};
@@ -220,104 +282,14 @@ export default function ApiExplorer() {
       {/* ── Documentation grid ──────────────────────────────────────── */}
       <div className="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {/* Query Parameters */}
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
-              Query Parameters
-            </h3>
-            <table className="w-full text-xs border-separate border-spacing-0">
-              <thead>
-                <tr className="text-left text-gray-500 dark:text-gray-400">
-                  <th className="pb-1 pr-3 font-medium">Name</th>
-                  <th className="pb-1 pr-3 font-medium">Type</th>
-                  <th className="pb-1 font-medium">Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {REQUEST_QUERY_DOCS.map((h) => (
-                  <tr key={h.name} className="align-top">
-                    <td className="py-1 pr-3">
-                      <code className="font-mono text-emerald-700 dark:text-emerald-400 whitespace-nowrap">
-                        {h.name}
-                      </code>
-                    </td>
-                    <td className="py-1 pr-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                      {h.type}
-                    </td>
-                    <td className="py-1 text-gray-600 dark:text-gray-300">
-                      {h.description}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Request Headers */}
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
-              Request Headers
-            </h3>
-            <table className="w-full text-xs border-separate border-spacing-0">
-              <thead>
-                <tr className="text-left text-gray-500 dark:text-gray-400">
-                  <th className="pb-1 pr-3 font-medium">Name</th>
-                  <th className="pb-1 pr-3 font-medium">Type</th>
-                  <th className="pb-1 font-medium">Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {REQUEST_HEADERS_DOCS.map((h) => (
-                  <tr key={h.name} className="align-top">
-                    <td className="py-1 pr-3">
-                      <code className="font-mono text-emerald-700 dark:text-emerald-400 whitespace-nowrap">
-                        {h.name}
-                      </code>
-                    </td>
-                    <td className="py-1 pr-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                      {h.type}
-                    </td>
-                    <td className="py-1 text-gray-600 dark:text-gray-300">
-                      {h.description}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Response Headers */}
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
-              Response Headers
-            </h3>
-            <table className="w-full text-xs border-separate border-spacing-0">
-              <thead>
-                <tr className="text-left text-gray-500 dark:text-gray-400">
-                  <th className="pb-1 pr-3 font-medium">Name</th>
-                  <th className="pb-1 pr-3 font-medium">Value</th>
-                  <th className="pb-1 font-medium">Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {RESPONSE_HEADERS_DOCS.map((h) => (
-                  <tr key={h.name} className="align-top">
-                    <td className="py-1 pr-3">
-                      <code className="font-mono text-blue-700 dark:text-blue-400 whitespace-nowrap">
-                        {h.name}
-                      </code>
-                    </td>
-                    <td className="py-1 pr-3 text-gray-500 dark:text-gray-400">
-                      {h.value}
-                    </td>
-                    <td className="py-1 text-gray-600 dark:text-gray-300">
-                      {h.description}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DocTable title="Query Parameters" items={REQUEST_QUERY_DOCS} />
+          <DocTable title="Request Headers" items={REQUEST_HEADERS_DOCS} />
+          <DocTable
+            title="Response Headers"
+            items={RESPONSE_HEADERS_DOCS}
+            valueLabel="Value"
+            nameColorClass="text-blue-700 dark:text-blue-400"
+          />
         </div>
       </div>
 
@@ -350,6 +322,38 @@ export default function ApiExplorer() {
                 </div>
               ),
             )}
+          </div>
+
+          {/* Current Request URL */}
+          <div className="flex items-start gap-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-md">
+            <span className="text-gray-400 dark:text-gray-500 font-semibold select-none shrink-0 mt-0.5">
+              URL
+            </span>
+            <code
+              data-testid="request-url-preview"
+              className="font-mono text-gray-800 dark:text-gray-200 break-all flex-1 mt-0.5"
+            >
+              {requestUrl}
+            </code>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const fullUrl =
+                    typeof window !== "undefined"
+                      ? window.location.origin + requestUrl
+                      : requestUrl;
+                  await navigator.clipboard.writeText(fullUrl);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                } catch (e) {
+                  console.error("Failed to copy URL", e);
+                }
+              }}
+              className="shrink-0 ml-auto bg-white hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
+            >
+              {copied ? "Copied!" : "Copy"}
+            </button>
           </div>
 
           {/* Controls row */}
