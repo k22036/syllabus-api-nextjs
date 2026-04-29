@@ -247,6 +247,13 @@ describe("SyllabusDataBrowser Component", () => {
       // Safe page falls back to max (page 2)
       expect(screen.getByText("テスト科目20")).toBeDefined();
       expect(screen.getByText("21–25 / 25 件")).toBeDefined();
+
+      // Navigate back to page 1 using safe navigation
+      const prevButton = screen.getByRole("button", { name: "← 前" });
+      await user.click(prevButton);
+      expect(screen.getByText("テスト科目0")).toBeDefined();
+      expect(screen.getByText("1–20 / 25 件")).toBeDefined();
+      expect(prevButton).toHaveProperty("disabled", true);
     });
   });
 
