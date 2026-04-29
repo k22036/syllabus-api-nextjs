@@ -21,7 +21,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.7",
+    "@biomejs/biome": "2.4.13",
     "@happy-dom/global-registrator": "^20.9.0",
     "@tailwindcss/postcss": "^4.2.1",
     "@testing-library/react": "^16.3.2",
