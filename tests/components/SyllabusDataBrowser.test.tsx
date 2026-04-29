@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, mock, spyOn } from "bun:test";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SyllabusDataBrowser from "../../app/_components/SyllabusDataBrowser";
@@ -247,6 +247,95 @@ describe("SyllabusDataBrowser Component", () => {
       // Safe page falls back to max (page 2)
       expect(screen.getByText("テスト科目20")).toBeDefined();
       expect(screen.getByText("21–25 / 25 件")).toBeDefined();
+    });
+  });
+
+  describe("CSV Export", () => {
+    it("generates a CSV file and triggers download on click", async () => {
+      // Provide mock data that forces escaping (commas, quotes, newlines, formulas)
+      const csvMockData: SyllabusData = {
+        '"101", 教室': [
+          {
+            subject: 'CODE101 : "テスト"\n科目',
+            room: '"101", 教室',
+            season: "前期",
+            open_time: "=A1+B1", // formula injection trigger
+          },
+        ],
+      };
+
+      const { user } = renderComponent({
+        data: csvMockData,
+        totalRooms: 1,
+        totalSubjects: 1,
+      });
+
+      // Assert CSV button is available
+      const csvButton = screen.getByRole("button", { name: "CSVエクスポート" });
+      expect(csvButton).not.toHaveProperty("disabled", true);
+
+      // Mock URL and requestAnimationFrame apis
+      const mockUrl = "blob:mock-url";
+      const createObjectURLMock = mock((_blob: Blob) => mockUrl);
+      const revokeObjectURLMock = mock((_url: string) => {});
+      global.URL.createObjectURL = createObjectURLMock;
+      global.URL.revokeObjectURL = revokeObjectURLMock;
+
+      // Mock requestAnimationFrame to run immediately
+      const rafSpy = spyOn(
+        global.window,
+        "requestAnimationFrame",
+      ).mockImplementation((cb: FrameRequestCallback) => {
+        cb(0);
+        return 1;
+      });
+
+      // Spy on Anchor click
+      const clickSpy = spyOn(
+        global.HTMLAnchorElement.prototype,
+        "click",
+      ).mockImplementation(() => {});
+
+      // Perform click
+      await user.click(csvButton);
+
+      // Verify Object URL creation
+      expect(createObjectURLMock).toHaveBeenCalledTimes(1);
+      const createdBlob = createObjectURLMock.mock
+        .calls[0][0] as unknown as Blob;
+
+      // Blob is returned from bun/happy-dom. Need to parse its text content safely.
+      const text = await createdBlob.text();
+
+      // 1. Verify BOM is present
+      expect(text.startsWith("\uFEFF")).toBe(true);
+
+      // 2. Verify Headers
+      const lines = text.substring(1).split("\n");
+      expect(lines[0]).toBe("科目コード,科目名,教室,学期,開講時限");
+
+      // 3. Verify Row Escaping: Code, Name, Room, Season, OpenTime
+      // Name: "テスト"\n科目 => """テスト""\n科目"
+      // Room: "101", 教室 => """101"", 教室"
+      // OpenTime: "=A1+B1" => "'=A1+B1"
+      const expectedRow = `CODE101,"""テスト""\n科目","""101"", 教室",前期,'=A1+B1`;
+      expect(lines.slice(1).join("\n")).toBe(expectedRow);
+
+      // Verify anchor click and document appending
+      expect(clickSpy).toHaveBeenCalledTimes(1);
+      const anchorNode = clickSpy.mock.contexts[0] as HTMLAnchorElement;
+      expect(anchorNode).toBeDefined();
+      expect(anchorNode.href).toBe(mockUrl);
+      // Validating dynamic file name
+      expect(anchorNode.download).toBe("syllabus_all_1件.csv");
+
+      // Validating memory cleanup
+      expect(rafSpy).toHaveBeenCalledTimes(1);
+      expect(revokeObjectURLMock).toHaveBeenCalledWith(mockUrl);
+
+      // Cleanup spies
+      rafSpy.mockRestore();
+      clickSpy.mockRestore();
     });
   });
 });
