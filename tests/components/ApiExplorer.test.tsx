@@ -4,6 +4,8 @@ import userEvent from "@testing-library/user-event";
 import ApiExplorer from "../../app/_components/ApiExplorer";
 
 describe("ApiExplorer Component", () => {
+  let originalClipboard: Clipboard;
+
   const setupFetchMock = (
     mockFn?: (...args: Parameters<typeof fetch>) => Promise<Response>,
   ) => {
@@ -28,6 +30,7 @@ describe("ApiExplorer Component", () => {
 
   beforeEach(() => {
     mock.restore();
+    originalClipboard = navigator.clipboard;
   });
 
   afterEach(() => {
@@ -38,6 +41,13 @@ describe("ApiExplorer Component", () => {
     if (typeof fetchMock?.mockRestore === "function") {
       fetchMock.mockRestore();
     }
+
+    // Restore clipboard
+    Object.defineProperty(navigator, "clipboard", {
+      value: originalClipboard,
+      writable: true,
+      configurable: true,
+    });
   });
 
   it("renders correctly with default state", () => {
