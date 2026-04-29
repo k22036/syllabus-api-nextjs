@@ -41,3 +41,30 @@ export const RESPONSE_HEADERS_DOCS: Array<{
     description: `${CACHE_AGE_SECONDS} 秒キャッシュし、最大 ${STALE_WHILE_REVALIDATE_SECONDS} 秒の古いレスポンス配信を許可。`,
   },
 ];
+
+export const REQUEST_QUERY_DOCS: Array<{
+  name: string;
+  type: string;
+  description: string;
+}> = [
+  {
+    name: "subject",
+    type: "string (optional)",
+    description: "講義名の部分一致検索（大文字・小文字を区別しません）。",
+  },
+  {
+    name: "room",
+    type: "string (optional)",
+    description: "教室名の部分一致検索（大文字・小文字を区別しません）。",
+  },
+  {
+    name: "season",
+    type: "string (optional)",
+    description: "開講学期の完全一致検索。",
+  },
+  {
+    name: "open_time",
+    type: "string (optional)",
+    description: "開講曜時限の完全一致検索。",
+  },
+];

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { z } from "zod";
+import type { SyllabusData } from "../../app/_types/syllabus";
 import {
   RESPONSE_HEADERS_DOCS,
   SYLLABUS_HEADERS,
@@ -18,8 +19,18 @@ const SyllabusItemSchema = z.object({
 const ResponseSchema = z.record(z.string(), z.array(SyllabusItemSchema));
 
 const BASE_URL = "http://localhost/api/fetch_syllabus";
-const createRequest = (headers?: HeadersInit): Request =>
-  new Request(BASE_URL, { headers });
+const createRequest = (
+  headers?: HeadersInit,
+  query?: Record<string, string>,
+): Request => {
+  const url = new URL(BASE_URL);
+  if (query) {
+    for (const [key, value] of Object.entries(query)) {
+      url.searchParams.append(key, value);
+    }
+  }
+  return new Request(url.toString(), { headers });
+};
 
 describe("GET /api/fetch_syllabus", () => {
   describe("初回リクエスト（If-None-Match なし）", () => {
@@ -151,6 +162,104 @@ describe("GET /api/fetch_syllabus", () => {
       const secondEtag = secondResponse.headers.get("etag");
 
       expect(firstEtag).toBe(secondEtag);
+    });
+  });
+
+  describe("クエリパラメータによるフィルタリング", () => {
+    // リクエスト作成と型アサーション、配列の平坦化をまとめたヘルパー関数
+    async function fetchFilteredData(query: Record<string, string>) {
+      const request = createRequest(undefined, query);
+      const response = await GET(request);
+      const data = (await response.json()) as SyllabusData;
+      const allItems = Object.values(data).flat();
+      return { response, data, allItems };
+    }
+
+    test("subject パラメータで部分一致フィルタリングができること", async () => {
+      const { allItems } = await fetchFilteredData({
+        subject: "プログラミング",
+      });
+
+      // テストの信頼性を高めるため、0件で素通りすることを防ぐ
+      expect(allItems.length).toBeGreaterThan(0);
+      for (const item of allItems) {
+        expect(item.subject.toLowerCase()).toContain("プログラミング");
+      }
+    });
+
+    test("room パラメータで部分一致フィルタリングができること", async () => {
+      const { allItems } = await fetchFilteredData({ room: "室" }); // 実際のJSONに存在する教室名の一部にする
+
+      expect(allItems.length).toBeGreaterThan(0);
+      for (const item of allItems) {
+        expect(item.room.toLowerCase()).toContain("室");
+      }
+    });
+
+    test("season パラメータで完全一致フィルタリングができること", async () => {
+      const { allItems } = await fetchFilteredData({ season: "前期" });
+
+      expect(allItems.length).toBeGreaterThan(0);
+      for (const item of allItems) {
+        expect(item.season).toBe("前期");
+      }
+    });
+
+    test("該当データがない場合は空のオブジェクトが返ること", async () => {
+      const { data } = await fetchFilteredData({ subject: "存在しない科目" });
+      expect(data).toEqual({});
+    });
+
+    describe("フィルタリングと ETag の連動", () => {
+      test("検索条件が異なると ETag も異なること", async () => {
+        const { response: res1 } = await fetchFilteredData({
+          subject: "プログラミング",
+        });
+        const { response: res2 } = await fetchFilteredData({ subject: "数学" });
+
+        const etag1 = res1.headers.get("etag");
+        const etag2 = res2.headers.get("etag");
+
+        expect(etag1).not.toBeNull();
+        expect(etag2).not.toBeNull();
+        expect(etag1).not.toBe(etag2);
+      });
+
+      test("フィルタリング条件が同じなら、その ETag で 304 Not Modified が返ること", async () => {
+        const { response: firstResponse } = await fetchFilteredData({
+          subject: "プログラミング",
+        });
+        const etag = firstResponse.headers.get("etag") as string;
+
+        // 同じ検索条件で If-None-Match を付与
+        const conditionalRequest = createRequest(
+          { "if-none-match": etag },
+          { subject: "プログラミング" },
+        );
+        const conditionalResponse = await GET(conditionalRequest);
+
+        expect(conditionalResponse.status).toBe(304);
+        expect(await conditionalResponse.text()).toBe("");
+      });
+
+      test("異なるフィルタリング条件の ETag を送ると 200 OK が返り新しい ETag が取得できること", async () => {
+        const { response: firstResponse } = await fetchFilteredData({
+          subject: "プログラミング",
+        });
+        const etag = firstResponse.headers.get("etag") as string;
+
+        // 別の検索条件で、以前の ETag を If-None-Match に付与
+        const conditionalRequest = createRequest(
+          { "if-none-match": etag },
+          { subject: "数学" },
+        );
+        const conditionalResponse = await GET(conditionalRequest);
+
+        expect(conditionalResponse.status).toBe(200);
+        const newEtag = conditionalResponse.headers.get("etag");
+        expect(newEtag).not.toBeNull();
+        expect(newEtag).not.toBe(etag);
+      });
     });
   });
 });
