@@ -209,5 +209,57 @@ describe("GET /api/fetch_syllabus", () => {
       const { data } = await fetchFilteredData({ subject: "存在しない科目" });
       expect(data).toEqual({});
     });
+
+    describe("フィルタリングと ETag の連動", () => {
+      test("検索条件が異なると ETag も異なること", async () => {
+        const { response: res1 } = await fetchFilteredData({
+          subject: "プログラミング",
+        });
+        const { response: res2 } = await fetchFilteredData({ subject: "数学" });
+
+        const etag1 = res1.headers.get("etag");
+        const etag2 = res2.headers.get("etag");
+
+        expect(etag1).not.toBeNull();
+        expect(etag2).not.toBeNull();
+        expect(etag1).not.toBe(etag2);
+      });
+
+      test("フィルタリング条件が同じなら、その ETag で 304 Not Modified が返ること", async () => {
+        const { response: firstResponse } = await fetchFilteredData({
+          subject: "プログラミング",
+        });
+        const etag = firstResponse.headers.get("etag") as string;
+
+        // 同じ検索条件で If-None-Match を付与
+        const conditionalRequest = createRequest(
+          { "if-none-match": etag },
+          { subject: "プログラミング" },
+        );
+        const conditionalResponse = await GET(conditionalRequest);
+
+        expect(conditionalResponse.status).toBe(304);
+        expect(await conditionalResponse.text()).toBe("");
+      });
+
+      test("異なるフィルタリング条件の ETag を送ると 200 OK が返り新しい ETag が取得できること", async () => {
+        const { response: firstResponse } = await fetchFilteredData({
+          subject: "プログラミング",
+        });
+        const etag = firstResponse.headers.get("etag") as string;
+
+        // 別の検索条件で、以前の ETag を If-None-Match に付与
+        const conditionalRequest = createRequest(
+          { "if-none-match": etag },
+          { subject: "数学" },
+        );
+        const conditionalResponse = await GET(conditionalRequest);
+
+        expect(conditionalResponse.status).toBe(200);
+        const newEtag = conditionalResponse.headers.get("etag");
+        expect(newEtag).not.toBeNull();
+        expect(newEtag).not.toBe(etag);
+      });
+    });
   });
 });
