@@ -1,8 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import { useCallback, useMemo, useState } from "react";
 import type { SyllabusData } from "../_types/syllabus";
 import { parseSubject } from "../_utils/formatters";
+
+// ============================================================================
+// Constants & Types
+// ============================================================================
+
+const PAGE_SIZE = 20;
+const SEASONS = ["すべて", "前期", "後期"] as const;
+
+type Season = (typeof SEASONS)[number];
 
 type Props = {
   data: SyllabusData;
@@ -10,40 +20,11 @@ type Props = {
   totalSubjects: number;
 };
 
-const PAGE_SIZE = 20;
+// ============================================================================
+// Custom Hooks
+// ============================================================================
 
-const SEASONS = ["すべて", "前期", "後期"] as const;
-
-type Season = (typeof SEASONS)[number];
-
-type StatCardProps = {
-  label: string;
-  value: number;
-  highlight?: boolean;
-};
-
-function StatCard({ label, value, highlight = false }: StatCardProps) {
-  return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3">
-      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-      <p
-        className={`text-2xl font-bold mt-0.5 ${
-          highlight
-            ? "text-blue-600 dark:text-blue-400"
-            : "text-gray-900 dark:text-gray-100"
-        }`}
-      >
-        {value.toLocaleString()}
-      </p>
-    </div>
-  );
-}
-
-export default function SyllabusDataBrowser({
-  data,
-  totalRooms,
-  totalSubjects,
-}: Props) {
+function useSyllabusBrowser(data: SyllabusData) {
   const [search, setSearch] = useState("");
   const [season, setSeason] = useState<Season>("すべて");
   const [page, setPage] = useState(1);
@@ -68,25 +49,127 @@ export default function SyllabusDataBrowser({
     });
   }, [allItems, search, season]);
 
+  const exportCsv = useCallback(() => {
+    const header = ["科目コード", "科目名", "教室", "学期", "開講時限"];
+    const escapeField = (field: string) => {
+      let str = field;
+      if (/^\s*[=+\-@]/.test(str)) {
+        str = `'${str}`;
+      }
+      if (str.includes('"') || str.includes(",") || str.includes("\n")) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+    const rows = filtered.map((item) => {
+      const { code, name } = parseSubject(item.subject);
+      return [code, name, item.room, item.season, item.open_time]
+        .map(escapeField)
+        .join(",");
+    });
+    const csv = [header.join(","), ...rows].join("\n");
+    const bom = "\uFEFF";
+    const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `syllabus_${season === "すべて" ? "all" : season}_${filtered.length}件.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    requestAnimationFrame(() => {
+      URL.revokeObjectURL(url);
+    });
+  }, [filtered, season]);
+
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount);
   const startIdx = (safePage - 1) * PAGE_SIZE;
   const endIdx = Math.min(startIdx + PAGE_SIZE, filtered.length);
-  const paginated = filtered.slice(startIdx, endIdx);
+  const paginatedItems = filtered.slice(startIdx, endIdx);
 
-  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    setSearch(e.target.value);
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
     setPage(1);
-  }
+  };
 
-  function handleSeasonChange(value: Season): void {
+  const handleSeasonChange = (value: Season) => {
     setSeason(value);
     setPage(1);
-  }
+  };
 
-  function handlePageChange(delta: number): void {
+  const handlePageChange = (delta: number) => {
     setPage(Math.max(1, Math.min(safePage + delta, pageCount)));
-  }
+  };
+
+  return {
+    search,
+    season,
+    filteredCount: filtered.length,
+    paginatedItems,
+    safePage,
+    pageCount,
+    startIdx,
+    endIdx,
+    handleSearchChange,
+    handleSeasonChange,
+    handlePageChange,
+    exportCsv,
+  };
+}
+
+// ============================================================================
+// Sub Components
+// ============================================================================
+
+function StatCard({
+  label,
+  value,
+  highlight = false,
+}: {
+  label: string;
+  value: number;
+  highlight?: boolean;
+}) {
+  return (
+    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3">
+      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+      <p
+        className={`text-2xl font-bold mt-0.5 ${
+          highlight
+            ? "text-blue-600 dark:text-blue-400"
+            : "text-gray-900 dark:text-gray-100"
+        }`}
+      >
+        {value.toLocaleString()}
+      </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// Main Component
+// ============================================================================
+
+export default function SyllabusDataBrowser({
+  data,
+  totalRooms,
+  totalSubjects,
+}: Props) {
+  const {
+    search,
+    season,
+    filteredCount,
+    paginatedItems,
+    safePage,
+    pageCount,
+    startIdx,
+    endIdx,
+    handleSearchChange,
+    handleSeasonChange,
+    handlePageChange,
+    exportCsv,
+  } = useSyllabusBrowser(data);
 
   return (
     <div className="space-y-4">
@@ -94,7 +177,7 @@ export default function SyllabusDataBrowser({
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <StatCard label="教室数" value={totalRooms} />
         <StatCard label="授業数" value={totalSubjects} />
-        <StatCard label="絞り込み結果" value={filtered.length} highlight />
+        <StatCard label="絞り込み結果" value={filteredCount} highlight />
       </div>
 
       {/* ── Filters ───────────────────────────────────────────────── */}
@@ -102,7 +185,7 @@ export default function SyllabusDataBrowser({
         <input
           type="text"
           value={search}
-          onChange={handleSearchChange}
+          onChange={(e) => handleSearchChange(e.target.value)}
           aria-label="科目名・教室名で検索"
           placeholder="科目名・教室名で検索..."
           className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -128,6 +211,17 @@ export default function SyllabusDataBrowser({
             </button>
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={exportCsv}
+          disabled={filteredCount === 0}
+          aria-label="CSVエクスポート"
+          className="inline-flex items-center gap-1.5 shrink-0 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          <FileDownloadOutlinedIcon sx={{ fontSize: 18 }} />
+          CSV
+        </button>
       </div>
 
       {/* ── Data table ────────────────────────────────────────────── */}
@@ -143,7 +237,7 @@ export default function SyllabusDataBrowser({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {paginated.length === 0 ? (
+            {paginatedItems.length === 0 ? (
               <tr>
                 <td
                   colSpan={5}
@@ -153,7 +247,7 @@ export default function SyllabusDataBrowser({
                 </td>
               </tr>
             ) : (
-              paginated.map((item) => {
+              paginatedItems.map((item) => {
                 const { code, name } = parseSubject(item.subject);
                 const isSenki = item.season === "前期";
                 return (
@@ -196,7 +290,7 @@ export default function SyllabusDataBrowser({
       {pageCount > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
           <p className="text-gray-500 dark:text-gray-400">
-            {startIdx + 1}–{endIdx} / {filtered.length} 件
+            {startIdx + 1}–{endIdx} / {filteredCount} 件
           </p>
           <div className="flex items-center gap-3">
             <button
