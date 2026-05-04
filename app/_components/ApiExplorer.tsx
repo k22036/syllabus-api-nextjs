@@ -64,34 +64,36 @@ function DocTable({
       <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
         {title}
       </h3>
-      <table className="w-full text-xs border-separate border-spacing-0">
-        <thead>
-          <tr className="text-left text-gray-500 dark:text-gray-400">
-            <th className="pb-1 pr-3 font-medium">Name</th>
-            <th className="pb-1 pr-3 font-medium">{valueLabel}</th>
-            <th className="pb-1 font-medium">Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((h) => (
-            <tr key={h.name} className="align-top">
-              <td className="py-1 pr-3">
-                <code
-                  className={`font-mono whitespace-nowrap ${nameColorClass}`}
-                >
-                  {h.name}
-                </code>
-              </td>
-              <td className="py-1 pr-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                {h.type || h.value}
-              </td>
-              <td className="py-1 text-gray-600 dark:text-gray-300">
-                {h.description}
-              </td>
+      <div className="overflow-x-auto pb-2">
+        <table className="w-full text-xs border-separate border-spacing-0 min-w-100">
+          <thead>
+            <tr className="text-left text-gray-500 dark:text-gray-400">
+              <th className="pb-1 pr-3 font-medium">Name</th>
+              <th className="pb-1 pr-3 font-medium">{valueLabel}</th>
+              <th className="pb-1 font-medium">Description</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.map((h) => (
+              <tr key={h.name} className="align-top">
+                <td className="py-1 pr-3">
+                  <code
+                    className={`font-mono whitespace-nowrap ${nameColorClass}`}
+                  >
+                    {h.name}
+                  </code>
+                </td>
+                <td className="py-1 pr-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                  {h.type || h.value}
+                </td>
+                <td className="py-1 text-gray-600 dark:text-gray-300 min-w-50">
+                  {h.description}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -234,11 +236,11 @@ export default function ApiExplorer() {
   return (
     <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
       {/* ── Header row ──────────────────────────────────────────────── */}
-      <div className="bg-white dark:bg-gray-900 px-4 py-3 flex items-center gap-3">
+      <div className="bg-white dark:bg-gray-900 px-4 py-3 flex flex-wrap items-center gap-3">
         <span className="px-2 py-0.5 rounded text-xs font-bold text-white bg-emerald-500 shrink-0">
           GET
         </span>
-        <code className="text-sm font-mono text-gray-800 dark:text-gray-200 flex-1">
+        <code className="text-sm font-mono text-gray-800 dark:text-gray-200 whitespace-nowrap">
           /api/fetch_syllabus
         </code>
         <p className="hidden sm:block text-sm text-gray-500 dark:text-gray-400 shrink-0">
@@ -247,8 +249,10 @@ export default function ApiExplorer() {
         </p>
         <button
           type="button"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? "try-it-panel" : undefined}
           onClick={() => dispatch({ type: "TOGGLE_OPEN" })}
-          className="shrink-0 text-xs font-medium px-3 py-1 rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          className="shrink-0 ml-auto text-xs font-medium px-3 py-1 rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
           {isOpen ? "閉じる" : "Try it"}
         </button>
@@ -270,7 +274,10 @@ export default function ApiExplorer() {
 
       {/* ── Try it panel ────────────────────────────────────────────── */}
       {isOpen && (
-        <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 space-y-4">
+        <div
+          id="try-it-panel"
+          className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 space-y-4"
+        >
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
             {(["subject", "room", "season", "open_time"] as const).map(
               (param) => (

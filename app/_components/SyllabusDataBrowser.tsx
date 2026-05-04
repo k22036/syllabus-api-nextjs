@@ -196,9 +196,10 @@ export default function SyllabusDataBrowser({
             <button
               key={s}
               type="button"
+              aria-pressed={season === s}
               onClick={() => handleSeasonChange(s)}
               className={[
-                "px-3 py-2 text-sm font-medium transition-colors",
+                "flex-1 sm:flex-none px-3 py-2 text-sm font-medium transition-colors",
                 i > 0 ? "border-l border-gray-200 dark:border-gray-700" : "",
                 season === s
                   ? "bg-blue-600 text-white"
@@ -225,8 +226,8 @@ export default function SyllabusDataBrowser({
       </div>
 
       {/* ── Data table ────────────────────────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-x-auto">
+        <table className="w-full text-sm min-w-150">
           <thead>
             <tr className="bg-gray-50 dark:bg-gray-800 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
               <th className="px-4 py-3 whitespace-nowrap">科目コード</th>
