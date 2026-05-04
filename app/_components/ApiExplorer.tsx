@@ -249,6 +249,8 @@ export default function ApiExplorer() {
         </p>
         <button
           type="button"
+          aria-expanded={isOpen}
+          aria-controls="try-it-panel"
           onClick={() => dispatch({ type: "TOGGLE_OPEN" })}
           className="shrink-0 ml-auto text-xs font-medium px-3 py-1 rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
@@ -272,7 +274,10 @@ export default function ApiExplorer() {
 
       {/* ── Try it panel ────────────────────────────────────────────── */}
       {isOpen && (
-        <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 space-y-4">
+        <div
+          id="try-it-panel"
+          className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 space-y-4"
+        >
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
             {(["subject", "room", "season", "open_time"] as const).map(
               (param) => (

@@ -196,6 +196,7 @@ export default function SyllabusDataBrowser({
             <button
               key={s}
               type="button"
+              aria-pressed={season === s}
               onClick={() => handleSeasonChange(s)}
               className={[
                 "flex-1 sm:flex-none px-3 py-2 text-sm font-medium transition-colors",
