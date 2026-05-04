@@ -250,7 +250,7 @@ export default function ApiExplorer() {
         <button
           type="button"
           aria-expanded={isOpen}
-          aria-controls="try-it-panel"
+          aria-controls={isOpen ? "try-it-panel" : undefined}
           onClick={() => dispatch({ type: "TOGGLE_OPEN" })}
           className="shrink-0 ml-auto text-xs font-medium px-3 py-1 rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
