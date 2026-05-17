@@ -418,7 +418,7 @@ export default function ApiExplorer() {
               {/* Response Body or 304 note */}
               {responseData.status === 304 ? (
                 <div className="rounded-md bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 px-4 py-3 text-sm text-blue-700 dark:text-blue-300">
-                  ✓ 304 Not Modified — データは変更されていません。
+                  ✓ 304 Not Modified: データは変更されていません。
                 </div>
               ) : (
                 <CollapsibleSection title="Response Body" defaultOpen>

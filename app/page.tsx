@@ -31,7 +31,7 @@ export default function Home() {
             </span>
           </div>
           <p className="mt-1 text-sm text-slate-400">
-            シラバス情報取得 REST API —
+            シラバス情報取得 REST API:
             エンドポイントの確認とデータの閲覧ができます
           </p>
         </div>
