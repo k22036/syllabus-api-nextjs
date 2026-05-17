@@ -23,7 +23,9 @@ export default function Home() {
       <header className="bg-slate-900 text-white px-4 sm:px-6 py-6 shadow-sm">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-baseline gap-3">
-            <h1 className="text-2xl font-bold tracking-tight">Syllabus API</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Syllabus API
+            </h1>
             <span className="text-xs font-mono bg-slate-700 px-2 py-0.5 rounded text-slate-300">
               v1
             </span>
