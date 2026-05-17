@@ -259,7 +259,7 @@ export default function ApiExplorer() {
       </div>
 
       {/* ── Documentation grid ──────────────────────────────────────── */}
-      <div className="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-4">
+      <div className="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <DocTable title="Query Parameters" items={REQUEST_QUERY_DOCS} />
           <DocTable title="Request Headers" items={REQUEST_HEADERS_DOCS} />
@@ -276,7 +276,7 @@ export default function ApiExplorer() {
       {isOpen && (
         <div
           id="try-it-panel"
-          className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 space-y-4"
+          className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-4 space-y-4"
         >
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
             {(["subject", "room", "season", "open_time"] as const).map(
