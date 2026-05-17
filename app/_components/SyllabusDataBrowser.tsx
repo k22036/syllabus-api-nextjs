@@ -132,13 +132,13 @@ function StatCard({
   highlight?: boolean;
 }) {
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3">
-      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+    <div className="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-3">
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">{label}</p>
       <p
         className={`text-2xl font-bold mt-0.5 ${
           highlight
             ? "text-blue-600 dark:text-blue-400"
-            : "text-gray-900 dark:text-gray-100"
+            : "text-zinc-900 dark:text-zinc-100"
         }`}
       >
         {value.toLocaleString()}
@@ -188,10 +188,10 @@ export default function SyllabusDataBrowser({
           onChange={(e) => handleSearchChange(e.target.value)}
           aria-label="科目名・教室名で検索"
           placeholder="科目名・教室名で検索..."
-          className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        <div className="flex shrink-0 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="flex shrink-0 rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden">
           {SEASONS.map((s, i) => (
             <button
               key={s}
@@ -200,10 +200,10 @@ export default function SyllabusDataBrowser({
               onClick={() => handleSeasonChange(s)}
               className={[
                 "flex-1 sm:flex-none px-3 py-2 text-sm font-medium transition-colors",
-                i > 0 ? "border-l border-gray-200 dark:border-gray-700" : "",
+                i > 0 ? "border-l border-zinc-200 dark:border-zinc-700" : "",
                 season === s
                   ? "bg-blue-600 text-white"
-                  : "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800",
+                  : "bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800",
               ]
                 .filter(Boolean)
                 .join(" ")}
@@ -218,7 +218,7 @@ export default function SyllabusDataBrowser({
           onClick={exportCsv}
           disabled={filteredCount === 0}
           aria-label="CSVエクスポート"
-          className="inline-flex items-center gap-1.5 shrink-0 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center gap-1.5 shrink-0 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <FileDownloadOutlinedIcon sx={{ fontSize: 18 }} />
           CSV
@@ -226,10 +226,10 @@ export default function SyllabusDataBrowser({
       </div>
 
       {/* ── Data table ────────────────────────────────────────────── */}
-      <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-x-auto">
+      <div className="rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-x-auto">
         <table className="w-full text-sm min-w-150">
           <thead>
-            <tr className="bg-gray-50 dark:bg-gray-800 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
+            <tr className="bg-zinc-50 dark:bg-zinc-800 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider text-left">
               <th className="px-4 py-3 whitespace-nowrap">科目コード</th>
               <th className="px-4 py-3">科目名</th>
               <th className="px-4 py-3 whitespace-nowrap">教室</th>
@@ -237,12 +237,12 @@ export default function SyllabusDataBrowser({
               <th className="px-4 py-3 whitespace-nowrap">開講時限</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+          <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
             {paginatedItems.length === 0 ? (
               <tr>
                 <td
                   colSpan={5}
-                  className="px-4 py-10 text-center text-sm text-gray-400 dark:text-gray-500"
+                  className="px-4 py-10 text-center text-sm text-zinc-400 dark:text-zinc-500"
                 >
                   該当するデータがありません
                 </td>
@@ -254,15 +254,15 @@ export default function SyllabusDataBrowser({
                 return (
                   <tr
                     key={item._uid}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    className="hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                   >
-                    <td className="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                    <td className="px-4 py-3 font-mono text-xs text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
                       {code}
                     </td>
-                    <td className="px-4 py-3 text-gray-800 dark:text-gray-200">
+                    <td className="px-4 py-3 text-zinc-800 dark:text-zinc-200">
                       {name}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-300 whitespace-nowrap">
                       {item.room}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
@@ -276,7 +276,7 @@ export default function SyllabusDataBrowser({
                         {item.season}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-300 whitespace-nowrap">
                       {item.open_time}
                     </td>
                   </tr>
@@ -290,7 +290,7 @@ export default function SyllabusDataBrowser({
       {/* ── Pagination ────────────────────────────────────────────── */}
       {pageCount > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-zinc-500 dark:text-zinc-400">
             {startIdx + 1}–{endIdx} / {filteredCount} 件
           </p>
           <div className="flex items-center gap-3">
@@ -298,18 +298,18 @@ export default function SyllabusDataBrowser({
               type="button"
               disabled={safePage <= 1}
               onClick={() => handlePageChange(-1)}
-              className="px-3 py-1.5 rounded border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 rounded border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               ← 前
             </button>
-            <span className="text-gray-600 dark:text-gray-400 tabular-nums">
+            <span className="text-zinc-600 dark:text-zinc-400 tabular-nums">
               {safePage} / {pageCount}
             </span>
             <button
               type="button"
               disabled={safePage >= pageCount}
               onClick={() => handlePageChange(1)}
-              className="px-3 py-1.5 rounded border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 rounded border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               次 →
             </button>
