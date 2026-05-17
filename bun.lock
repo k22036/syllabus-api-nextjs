@@ -24,7 +24,7 @@
         "@types/node": "^25",
         "@types/react": "^19",
         "@types/react-dom": "^19",
-        "@types/web": "^0.0.347",
+        "@types/web": "^0.0.349",
         "happy-dom": "^20.9.0",
         "postcss": "^8",
         "tailwindcss": "^4.2.4",
@@ -255,7 +255,7 @@
 
     "@types/react-transition-group": ["@types/react-transition-group@4.4.12", "", { "peerDependencies": { "@types/react": "*" } }, "sha512-8TV6R3h2j7a91c+1DXdJi3Syo69zzIZbz7Lg5tORM5LEJG7X/E6a1V3drRyBRZq7/utz7A+c4OgYLiLcYGHG6w=="],
 
-    "@types/web": ["@types/web@0.0.347", "", {}, "sha512-BYbWW8YEvnNeiQ72BXZrm8XXLJeC9rPUmqzcoYPWt3hcOAaJKGm8RN+vJ1mgkfOOGDChe1gYKj8gkXOae3McVg=="],
+    "@types/web": ["@types/web@0.0.349", "", {}, "sha512-9TmuPnb7P2d2UKs6edqFeyGIWmcP6q359pp3GqWuvT2h9NGz5nxdAvi4UkIOjRbrTj7icQzJ3ODsSt6DSAwLyw=="],
 
     "@types/whatwg-mimetype": ["@types/whatwg-mimetype@3.0.2", "", {}, "sha512-c2AKvDT8ToxLIOUlN51gTiHXflsfIFisS4pO7pDPoKouJCESkhZnEy623gwP9laCy5lnLDAw1vAzu2vM2YLOrA=="],
 
