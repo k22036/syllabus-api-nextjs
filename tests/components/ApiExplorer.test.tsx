@@ -127,7 +127,7 @@ describe("ApiExplorer Component", () => {
     await waitFor(() => {
       expect(screen.getByText("304")).toBeDefined();
       expect(
-        screen.getByText("✓ 304 Not Modified — データは変更されていません。"),
+        screen.getByText("✓ 304 Not Modified: データは変更されていません。"),
       ).toBeDefined();
     });
   });

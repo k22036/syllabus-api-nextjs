@@ -28,7 +28,7 @@ function CollapsibleSection({
 }: CollapsibleSectionProps) {
   return (
     <details open={defaultOpen || undefined} className="group">
-      <summary className="list-none cursor-pointer text-xs font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
+      <summary className="list-none cursor-pointer text-xs font-medium text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
         <span className="inline-block transition-transform group-open:rotate-90">
           ▶
         </span>
@@ -61,13 +61,13 @@ function DocTable({
 }: DocTableProps) {
   return (
     <div>
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">
         {title}
       </h3>
       <div className="overflow-x-auto pb-2">
         <table className="w-full text-xs border-separate border-spacing-0 min-w-100">
           <thead>
-            <tr className="text-left text-gray-500 dark:text-gray-400">
+            <tr className="text-left text-zinc-500 dark:text-zinc-400">
               <th className="pb-1 pr-3 font-medium">Name</th>
               <th className="pb-1 pr-3 font-medium">{valueLabel}</th>
               <th className="pb-1 font-medium">Description</th>
@@ -83,10 +83,10 @@ function DocTable({
                     {h.name}
                   </code>
                 </td>
-                <td className="py-1 pr-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                <td className="py-1 pr-3 text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
                   {h.type || h.value}
                 </td>
-                <td className="py-1 text-gray-600 dark:text-gray-300 min-w-50">
+                <td className="py-1 text-zinc-600 dark:text-zinc-300 min-w-50">
                   {h.description}
                 </td>
               </tr>
@@ -234,16 +234,16 @@ export default function ApiExplorer() {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden">
       {/* ── Header row ──────────────────────────────────────────────── */}
-      <div className="bg-white dark:bg-gray-900 px-4 py-3 flex flex-wrap items-center gap-3">
+      <div className="bg-white dark:bg-zinc-900 px-4 py-3 flex flex-wrap items-center gap-3">
         <span className="px-2 py-0.5 rounded text-xs font-bold text-white bg-emerald-500 shrink-0">
           GET
         </span>
-        <code className="text-sm font-mono text-gray-800 dark:text-gray-200 whitespace-nowrap">
+        <code className="text-sm font-mono text-zinc-800 dark:text-zinc-200 whitespace-nowrap">
           /api/fetch_syllabus
         </code>
-        <p className="hidden sm:block text-sm text-gray-500 dark:text-gray-400 shrink-0">
+        <p className="hidden sm:block text-sm text-zinc-500 dark:text-zinc-400 shrink-0">
           シラバスデータを JSON で返します。ETag
           による条件付きリクエストをサポート。
         </p>
@@ -252,14 +252,14 @@ export default function ApiExplorer() {
           aria-expanded={isOpen}
           aria-controls={isOpen ? "try-it-panel" : undefined}
           onClick={() => dispatch({ type: "TOGGLE_OPEN" })}
-          className="shrink-0 ml-auto text-xs font-medium px-3 py-1 rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          className="shrink-0 ml-auto text-xs font-medium px-3 py-1 rounded border border-zinc-300 dark:border-zinc-600 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
         >
           {isOpen ? "閉じる" : "Try it"}
         </button>
       </div>
 
       {/* ── Documentation grid ──────────────────────────────────────── */}
-      <div className="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-4">
+      <div className="bg-zinc-50 dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700 p-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <DocTable title="Query Parameters" items={REQUEST_QUERY_DOCS} />
           <DocTable title="Request Headers" items={REQUEST_HEADERS_DOCS} />
@@ -276,15 +276,15 @@ export default function ApiExplorer() {
       {isOpen && (
         <div
           id="try-it-panel"
-          className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 space-y-4"
+          className="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-700 p-4 space-y-4"
         >
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pb-4 border-b border-zinc-100 dark:border-zinc-800">
             {(["subject", "room", "season", "open_time"] as const).map(
               (param) => (
                 <div key={param} className="space-y-1">
                   <label
                     htmlFor={`query-${param}`}
-                    className="text-xs font-medium text-gray-600 dark:text-gray-400 block pb-1"
+                    className="text-xs font-medium text-zinc-600 dark:text-zinc-400 block pb-1"
                   >
                     {param}
                   </label>
@@ -298,7 +298,7 @@ export default function ApiExplorer() {
                         payload: { name: param, value: e.target.value },
                       })
                     }
-                    className="block w-full rounded border border-gray-300 bg-white text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 py-1.5 px-2 outline-none focus:ring-2 focus:border-emerald-500 focus:ring-emerald-500/20"
+                    className="block w-full rounded border border-zinc-300 bg-white text-sm dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-200 py-1.5 px-2 outline-none focus:ring-2 focus:border-emerald-500 focus:ring-emerald-500/20"
                     placeholder={`...`}
                   />
                 </div>
@@ -307,13 +307,13 @@ export default function ApiExplorer() {
           </div>
 
           {/* Current Request URL */}
-          <div className="flex items-start gap-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-md">
-            <span className="text-gray-400 dark:text-gray-500 font-semibold select-none shrink-0 mt-0.5">
+          <div className="flex items-start gap-3 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-3 py-2 rounded-md">
+            <span className="text-zinc-400 dark:text-zinc-500 font-semibold select-none shrink-0 mt-0.5">
               URL
             </span>
             <code
               data-testid="request-url-preview"
-              className="font-mono text-gray-800 dark:text-gray-200 break-all flex-1 mt-0.5"
+              className="font-mono text-zinc-800 dark:text-zinc-200 break-all flex-1 mt-0.5"
             >
               {requestUrl}
             </code>
@@ -332,7 +332,7 @@ export default function ApiExplorer() {
                   console.error("Failed to copy URL", e);
                 }
               }}
-              className="shrink-0 ml-auto bg-white hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
+              className="shrink-0 ml-auto bg-white hover:bg-zinc-100 dark:bg-zinc-700 dark:hover:bg-zinc-600 border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
             >
               {copied ? "Copied!" : "Copy"}
             </button>
@@ -340,7 +340,7 @@ export default function ApiExplorer() {
 
           {/* Controls row */}
           <div className="flex flex-wrap items-center gap-4">
-            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 select-none cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300 select-none cursor-pointer">
               <input
                 type="checkbox"
                 checked={useEtag}
@@ -351,15 +351,15 @@ export default function ApiExplorer() {
                     payload: e.target.checked,
                   })
                 }
-                className="rounded border-gray-300 dark:border-gray-600 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                className="rounded border-zinc-300 dark:border-zinc-600 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
               />
               <span>If-None-Match を使用</span>
               {storedEtag === null ? (
-                <span className="text-xs text-gray-400 dark:text-gray-500">
+                <span className="text-xs text-zinc-400 dark:text-zinc-500">
                   (最初のリクエスト後に有効)
                 </span>
               ) : (
-                <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono text-gray-700 dark:text-gray-300">
+                <code className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded font-mono text-zinc-700 dark:text-zinc-300">
                   {storedEtag}
                 </code>
               )}
@@ -393,20 +393,20 @@ export default function ApiExplorer() {
                 >
                   {responseData.status}
                 </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
                   {responseData.duration} ms
                 </span>
               </div>
 
               {/* Response Headers collapsible */}
               <CollapsibleSection title="Response Headers">
-                <div className="mt-2 rounded bg-gray-50 dark:bg-gray-800 p-3 text-xs font-mono space-y-0.5">
+                <div className="mt-2 rounded bg-zinc-50 dark:bg-zinc-800 p-3 text-xs font-mono space-y-0.5">
                   {Object.entries(responseData.headers).map(([key, value]) => (
                     <div
                       key={key}
-                      className="flex gap-2 text-gray-700 dark:text-gray-300"
+                      className="flex gap-2 text-zinc-700 dark:text-zinc-300"
                     >
-                      <span className="text-gray-500 dark:text-gray-400 shrink-0">
+                      <span className="text-zinc-500 dark:text-zinc-400 shrink-0">
                         {key}:
                       </span>
                       <span className="break-all">{value}</span>
@@ -418,11 +418,11 @@ export default function ApiExplorer() {
               {/* Response Body or 304 note */}
               {responseData.status === 304 ? (
                 <div className="rounded-md bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 px-4 py-3 text-sm text-blue-700 dark:text-blue-300">
-                  ✓ 304 Not Modified — データは変更されていません。
+                  ✓ 304 Not Modified: データは変更されていません。
                 </div>
               ) : (
                 <CollapsibleSection title="Response Body" defaultOpen>
-                  <pre className="mt-2 bg-gray-50 dark:bg-gray-800 p-3 text-xs overflow-auto max-h-64 rounded">
+                  <pre className="mt-2 bg-zinc-50 dark:bg-zinc-800 p-3 text-xs overflow-auto max-h-64 rounded">
                     {formatJsonBody(responseData.body)}
                   </pre>
                 </CollapsibleSection>
