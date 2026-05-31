@@ -32,8 +32,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           advanced-security: false
-          annotations:
-            true
+          annotations: true
 
   # ------------------------------------------------------------------
   # 2. React Doctor: セキュリティ，パフォーマンスの問題を検査
@@ -50,6 +49,3 @@ jobs:
           persist-credentials: false
 
       - uses: millionco/react-doctor@fe01e573a91a36316c858ad1e7c12a5fe18c1039 # main
-        with:
-          verbose: "true"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
