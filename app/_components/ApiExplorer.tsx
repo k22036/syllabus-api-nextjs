@@ -291,6 +291,7 @@ export default function ApiExplorer() {
                   <input
                     id={`query-${param}`}
                     type="text"
+                    aria-label={param}
                     value={state[param]}
                     onChange={(e) =>
                       dispatch({
