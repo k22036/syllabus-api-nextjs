@@ -4,6 +4,6 @@ export default {
   verbose: true,
   diff: false,
   ignore: {
-    files: ["tests/**"],
+    files: ["tests/**", ".unlighthouse/**"],
   },
 } satisfies ReactDoctorConfig;
