@@ -32,7 +32,7 @@
     "@types/react-dom": "^19",
     "@types/web": "^0.0.350",
     "postcss": "^8",
-    "react-doctor": "^0.4.2",
+    "react-doctor": "^0.5.5",
     "tailwindcss": "^4.3.0",
     "typescript": "^6"
   }
